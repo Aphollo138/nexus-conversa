@@ -190,17 +190,15 @@ function Features() {
   return (
     <section className="relative w-full min-h-screen bg-black flex items-center py-20 overflow-hidden">
       {/* 3D Boat Background */}
-      {!isMobile && (
-        <div className="absolute right-0 bottom-0 w-full lg:w-2/3 h-full pointer-events-none z-0">
-          <Spline 
-            scene="https://prod.spline.design/zusB8LVg-Dz5VwZa/scene.splinecode"
-            className="w-full h-full opacity-60 grayscale"
-          />
-          {/* Gradient Masks for smooth blending */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-        </div>
-      )}
+      <div className="absolute right-0 bottom-0 w-full lg:w-2/3 h-full pointer-events-none z-0 hidden lg:block">
+        <Spline 
+          scene="https://prod.spline.design/zusB8LVg-Dz5VwZa/scene.splinecode"
+          className="w-full h-full opacity-60 grayscale"
+        />
+        {/* Gradient Masks for smooth blending */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+      </div>
 
       {/* Mobile Fallback Background */}
       {isMobile && (
@@ -266,16 +264,12 @@ function ConversationModes() {
             transition={{ duration: 1, ease: "easeOut" }}
             className="h-[50vh] lg:h-screen w-full relative order-1 lg:order-1 hidden lg:block"
           >
-            {!isMobile && (
-              <>
-                <div className="absolute inset-0 z-0 grayscale opacity-80">
-                  <Spline scene="https://prod.spline.design/KDRrp0nO3eFlfaKY/scene.splinecode" />
-                </div>
-                {/* Gradient Masks */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-black pointer-events-none" />
-                <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black pointer-events-none" />
-              </>
-            )}
+            <div className="absolute inset-0 z-0 grayscale opacity-80">
+              <Spline scene="https://prod.spline.design/KDRrp0nO3eFlfaKY/scene.splinecode" />
+            </div>
+            {/* Gradient Masks */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-black pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black pointer-events-none" />
           </motion.div>
 
           {/* Right Side: Content */}
