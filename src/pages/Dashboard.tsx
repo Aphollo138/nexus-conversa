@@ -13,6 +13,7 @@ import SettingsModal from '../components/SettingsModal';
 import PrivateChat from '../components/PrivateChat';
 import Reviews from '../components/Reviews';
 import VoiceCall from '../components/VoiceCall';
+import WelcomeModal from '../components/WelcomeModal';
 
 interface UserProfile {
   username?: string;
@@ -518,6 +519,9 @@ export default function Dashboard() {
            </motion.div>
         )}
       </AnimatePresence>
+      
+      {/* Welcome Modal */}
+      <WelcomeModal />
     </div>
   );
 }

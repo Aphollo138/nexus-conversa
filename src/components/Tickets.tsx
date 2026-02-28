@@ -709,11 +709,11 @@ export default function Tickets({ onStartCall }: TicketsProps) {
               
               {/* Left Sidebar - Collapsible on Mobile */}
               <details className="group md:hidden border-b border-white/5 bg-[#131318] shrink-0">
-                <summary className="px-4 py-3 flex items-center justify-between cursor-pointer list-none text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                <summary className="px-4 py-3 flex items-center justify-between cursor-pointer list-none text-xs font-bold text-zinc-500 uppercase tracking-wider select-none">
                   <span>Informações do Chamado</span>
                   <ChevronDown className="w-4 h-4 transition-transform group-open:rotate-180" />
                 </summary>
-                <div className="p-4 space-y-4 border-t border-white/5 bg-[#131318]">
+                <div className="p-4 space-y-4 border-t border-white/5 bg-[#131318] max-h-[40vh] overflow-y-auto">
                    {/* Client Info */}
                    <div className="space-y-3">
                     <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Solicitante</span>
@@ -841,7 +841,7 @@ export default function Tickets({ onStartCall }: TicketsProps) {
                 </div>
 
                 {/* Timeline Content */}
-                <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 md:space-y-8 custom-scrollbar">
+                <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 md:space-y-8 custom-scrollbar pb-20 md:pb-8">
                   
                   <div className="flex justify-center">
                     <button className="text-xs text-zinc-500 hover:text-zinc-300 flex items-center gap-1 bg-white/5 px-3 py-1 rounded-full transition-colors">
