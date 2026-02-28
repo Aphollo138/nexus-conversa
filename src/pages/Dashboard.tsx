@@ -443,7 +443,7 @@ export default function Dashboard() {
         ) : activeView === 'friends' ? (
           <Friends onStartPrivateChat={handleStartPrivateChat} />
         ) : activeView === 'tickets' ? (
-          <Tickets />
+          <Tickets onStartCall={handleStartCall} />
         ) : activeView === 'reviews' ? (
           <Reviews />
         ) : (

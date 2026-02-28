@@ -4,7 +4,7 @@ import {
   Search, Filter, ArrowLeft, Star, Trash2, Play, CheckSquare, 
   MoreHorizontal, User, Shield, Calendar, X, Hash, LayoutDashboard,
   FileText, ThumbsUp, History, ChevronRight, Plus, Flame, Briefcase,
-  ChevronDown, Paperclip, GripVertical
+  ChevronDown, Paperclip, GripVertical, Phone
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db, auth } from '../firebaseConfig';
@@ -105,11 +105,16 @@ const StatCard = ({ title, count, icon: Icon, colorClass }: { title: string, cou
   </div>
 );
 
-export default function Tickets() {
+interface TicketsProps {
+  onStartCall?: (targetUser: any) => void;
+}
+
+export default function Tickets({ onStartCall }: TicketsProps) {
   const [tickets, setTickets] = useState<TicketData[]>([]);
   const [selectedTicket, setSelectedTicket] = useState<TicketData | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [adminUser, setAdminUser] = useState<any>(null);
   
   // Form State
   const [formData, setFormData] = useState({
@@ -131,6 +136,25 @@ export default function Tickets() {
       setIsAdmin(auth.currentUser.uid === ADMIN_UID);
     }
   }, []);
+
+  // Fetch Admin User Data (if not admin)
+  useEffect(() => {
+    if (!isAdmin && auth.currentUser) {
+      const fetchAdmin = async () => {
+        try {
+          const adminDoc = await getDoc(doc(db, 'users', ADMIN_UID));
+          if (adminDoc.exists()) {
+            setAdminUser({ uid: ADMIN_UID, ...adminDoc.data() });
+          } else {
+            setAdminUser({ uid: ADMIN_UID, username: 'Suporte', avatarUrl: '' });
+          }
+        } catch (error) {
+          console.error("Error fetching admin user:", error);
+        }
+      };
+      fetchAdmin();
+    }
+  }, [isAdmin]);
 
   useEffect(() => {
     if (selectedTicket?.userId) {
@@ -562,6 +586,23 @@ export default function Tickets() {
                 </span>
               </div>
               <div className="flex items-center gap-2">
+                 {/* Call Button */}
+                 <button 
+                   onClick={() => {
+                     if (onStartCall) {
+                       if (isAdmin && ticketUser) {
+                         onStartCall(ticketUser);
+                       } else if (!isAdmin && adminUser) {
+                         onStartCall(adminUser);
+                       }
+                     }
+                   }}
+                   className="p-2 text-zinc-500 hover:text-green-500 hover:bg-green-500/10 rounded-lg transition-all"
+                   title="Iniciar Chamada de Voz"
+                 >
+                   <Phone className="w-5 h-5" />
+                 </button>
+
                  {isAdmin && (
                   <button 
                     onClick={() => setTicketToDelete(selectedTicket.id)}

@@ -31,3 +31,10 @@ body {
 .bg-300\% {
   background-size: 300% 300%;
 }
+
+/* Prevent Zoom on iPhone Inputs */
+@media screen and (max-width: 768px) {
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+}

@@ -511,7 +511,7 @@ export default function PrivateChat({ initialTargetUser, onStartCall }: PrivateC
               </div>
               <div className="flex items-center gap-4 text-zinc-400 shrink-0">
                  <button onClick={() => onStartCall && onStartCall(activeUser)}>
-                   <Phone className="w-5 h-5 hover:text-green-400 cursor-pointer hidden sm:block transition-colors" />
+                   <Phone className="w-5 h-5 hover:text-green-400 cursor-pointer transition-colors" />
                  </button>
                  <Video className="w-5 h-5 hover:text-zinc-200 cursor-pointer hidden sm:block" />
                  <Search className="w-5 h-5 hover:text-zinc-200 cursor-pointer" />
