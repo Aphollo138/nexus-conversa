@@ -205,7 +205,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="bg-black h-screen w-screen flex overflow-hidden text-white font-sans relative">
+    <div className="bg-black h-dvh w-full flex overflow-hidden text-white font-sans relative">
       <SettingsModal 
         isOpen={isSettingsOpen} 
         onClose={() => setIsSettingsOpen(false)} 

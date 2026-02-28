@@ -23,14 +23,14 @@ export default function WelcomeModal() {
         await navigator.share({
           title: 'Conheça nossa Comunidade!',
           text: 'Estou usando este app incrível em fase beta. Venha conferir!',
-          url: window.location.href,
+          url: window.location.origin,
         });
       } catch (err) {
         console.error('Error sharing:', err);
       }
     } else {
       // Fallback: Copy to clipboard
-      navigator.clipboard.writeText(window.location.href);
+      navigator.clipboard.writeText(window.location.origin);
       alert('Link copiado para a área de transferência!');
     }
   };
