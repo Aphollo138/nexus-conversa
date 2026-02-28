@@ -1,8 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Spline from '@splinetool/react-spline';
 import { motion } from 'framer-motion';
 import { Bot, ArrowRight, Menu, X, User, DoorOpen, Zap, Shield, Globe } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+
+// Hook to check for mobile/tablet
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 1024);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+  return isMobile;
+};
 
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -156,6 +168,7 @@ function Hero() {
 }
 
 function Features() {
+  const isMobile = useIsMobile();
   const features = [
     {
       icon: <User className="w-8 h-8" />,
@@ -177,15 +190,22 @@ function Features() {
   return (
     <section className="relative w-full min-h-screen bg-black flex items-center py-20 overflow-hidden">
       {/* 3D Boat Background */}
-      <div className="absolute right-0 bottom-0 w-full lg:w-2/3 h-full pointer-events-none z-0">
-        <Spline 
-          scene="https://prod.spline.design/zusB8LVg-Dz5VwZa/scene.splinecode"
-          className="w-full h-full opacity-60 grayscale"
-        />
-        {/* Gradient Masks for smooth blending */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-      </div>
+      {!isMobile && (
+        <div className="absolute right-0 bottom-0 w-full lg:w-2/3 h-full pointer-events-none z-0">
+          <Spline 
+            scene="https://prod.spline.design/zusB8LVg-Dz5VwZa/scene.splinecode"
+            className="w-full h-full opacity-60 grayscale"
+          />
+          {/* Gradient Masks for smooth blending */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+        </div>
+      )}
+
+      {/* Mobile Fallback Background */}
+      {isMobile && (
+         <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-zinc-800/40 via-black to-black" />
+      )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
@@ -232,6 +252,7 @@ function Features() {
 }
 
 function ConversationModes() {
+  const isMobile = useIsMobile();
   return (
     <section className="relative w-full min-h-screen bg-black flex items-center py-20 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
@@ -243,14 +264,18 @@ function ConversationModes() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 1, ease: "easeOut" }}
-            className="h-[50vh] lg:h-screen w-full relative order-1 lg:order-1"
+            className="h-[50vh] lg:h-screen w-full relative order-1 lg:order-1 hidden lg:block"
           >
-            <div className="absolute inset-0 z-0 grayscale opacity-80">
-              <Spline scene="https://prod.spline.design/KDRrp0nO3eFlfaKY/scene.splinecode" />
-            </div>
-            {/* Gradient Masks */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-black pointer-events-none" />
-            <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black pointer-events-none" />
+            {!isMobile && (
+              <>
+                <div className="absolute inset-0 z-0 grayscale opacity-80">
+                  <Spline scene="https://prod.spline.design/KDRrp0nO3eFlfaKY/scene.splinecode" />
+                </div>
+                {/* Gradient Masks */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-black pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black pointer-events-none" />
+              </>
+            )}
           </motion.div>
 
           {/* Right Side: Content */}
@@ -323,18 +348,26 @@ function ConversationModes() {
 }
 
 export default function Home() {
+  const isMobile = useIsMobile();
   return (
     <div className="bg-black min-h-screen text-white overflow-x-hidden relative">
       {/* Hero 3D Background Layer */}
-      <div className="fixed inset-0 z-0 grayscale opacity-80 pointer-events-none lg:pointer-events-auto">
-        <Spline 
-          scene="https://prod.spline.design/dnN6ZvuJBbyN2Va1/scene.splinecode"
-          className="w-full h-full lg:translate-x-1/4"
-        />
-        {/* Overlay gradient to ensure text readability */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-transparent pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black pointer-events-none" />
-      </div>
+      {!isMobile && (
+        <div className="fixed inset-0 z-0 grayscale opacity-80 pointer-events-none lg:pointer-events-auto">
+          <Spline 
+            scene="https://prod.spline.design/dnN6ZvuJBbyN2Va1/scene.splinecode"
+            className="w-full h-full lg:translate-x-1/4"
+          />
+          {/* Overlay gradient to ensure text readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-transparent pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black pointer-events-none" />
+        </div>
+      )}
+
+      {/* Mobile Hero Background Fallback */}
+      {isMobile && (
+        <div className="fixed inset-0 z-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-zinc-900/50 via-black to-black" />
+      )}
 
       <Navbar />
       <Hero />

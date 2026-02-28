@@ -354,7 +354,7 @@ export default function Tickets({ onStartCall }: TicketsProps) {
             <input 
               type="text" 
               placeholder="Pesquisar..." 
-              className="bg-[#1e1e24] border border-white/5 rounded-full pl-9 pr-4 py-1.5 text-sm focus:outline-none focus:border-indigo-500/50 w-32 md:w-64 transition-all"
+              className="bg-[#1e1e24] border border-white/5 rounded-full pl-9 pr-4 py-1.5 text-base md:text-sm focus:outline-none focus:border-indigo-500/50 w-32 md:w-64 transition-all"
             />
           </div>
           <button 
@@ -491,7 +491,7 @@ export default function Tickets({ onStartCall }: TicketsProps) {
                   <input 
                     value={formData.subject}
                     onChange={e => setFormData({...formData, subject: e.target.value})}
-                    className="w-full bg-[#111116] border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none transition-colors"
+                    className="w-full bg-[#111116] border border-white/10 rounded-lg px-3 py-2.5 text-base md:text-sm text-white focus:border-indigo-500 focus:outline-none transition-colors"
                     placeholder="Resumo da solicitação"
                   />
                 </div>
@@ -503,7 +503,7 @@ export default function Tickets({ onStartCall }: TicketsProps) {
                       <select 
                         value={formData.category}
                         onChange={e => setFormData({...formData, category: e.target.value})}
-                        className="w-full bg-[#111116] border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none appearance-none cursor-pointer"
+                        className="w-full bg-[#111116] border border-white/10 rounded-lg px-3 py-2.5 text-base md:text-sm text-white focus:border-indigo-500 focus:outline-none appearance-none cursor-pointer"
                       >
                         <option>Dúvida</option>
                         <option>Problema Técnico</option>
@@ -519,7 +519,7 @@ export default function Tickets({ onStartCall }: TicketsProps) {
                       <select 
                         value={formData.priority}
                         onChange={e => setFormData({...formData, priority: e.target.value})}
-                        className="w-full bg-[#111116] border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none appearance-none cursor-pointer"
+                        className="w-full bg-[#111116] border border-white/10 rounded-lg px-3 py-2.5 text-base md:text-sm text-white focus:border-indigo-500 focus:outline-none appearance-none cursor-pointer"
                       >
                         <option>Baixa</option>
                         <option>Normal</option>
@@ -536,7 +536,7 @@ export default function Tickets({ onStartCall }: TicketsProps) {
                   <textarea 
                     value={formData.message}
                     onChange={e => setFormData({...formData, message: e.target.value})}
-                    className="w-full bg-[#111116] border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none min-h-[120px] resize-none"
+                    className="w-full bg-[#111116] border border-white/10 rounded-lg px-3 py-2.5 text-base md:text-sm text-white focus:border-indigo-500 focus:outline-none min-h-[120px] resize-none"
                     placeholder="Descreva o problema..."
                   />
                 </div>
@@ -574,18 +574,18 @@ export default function Tickets({ onStartCall }: TicketsProps) {
           >
             
             {/* 1. Top Navigation Bar */}
-            <div className="h-14 border-b border-white/5 flex items-center justify-between px-4 bg-[#16161c] shrink-0">
-              <div className="flex items-center gap-4">
-                <button onClick={() => setSelectedTicket(null)} className="p-2 hover:bg-white/5 rounded-lg text-zinc-400 hover:text-white transition-colors">
+            <div className="h-14 border-b border-white/5 flex items-center justify-between px-2 sm:px-4 bg-[#16161c] shrink-0 gap-2">
+              <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+                <button onClick={() => setSelectedTicket(null)} className="p-2 hover:bg-white/5 rounded-lg text-zinc-400 hover:text-white transition-colors shrink-0">
                   <ArrowLeft className="w-5 h-5" />
                 </button>
-                <div className="h-6 w-px bg-white/10"></div>
-                <span className="text-zinc-400 text-sm font-medium flex items-center gap-2">
-                  <FileText className="w-4 h-4" />
-                  Tarefas | {selectedTicket.category || 'Geral'}
+                <div className="h-6 w-px bg-white/10 shrink-0 hidden sm:block"></div>
+                <span className="text-zinc-400 text-sm font-medium flex items-center gap-2 truncate">
+                  <FileText className="w-4 h-4 shrink-0 hidden sm:block" />
+                  <span className="truncate">{selectedTicket.category || 'Geral'}</span>
                 </span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 sm:gap-2 shrink-0">
                  {/* Call Button */}
                  <button 
                    onClick={() => {
@@ -912,7 +912,7 @@ export default function Tickets({ onStartCall }: TicketsProps) {
                         value={replyText}
                         onChange={e => setReplyText(e.target.value)}
                         placeholder="Escreva sua resposta..."
-                        className="w-full bg-transparent p-4 text-sm text-white focus:outline-none resize-none min-h-[100px]"
+                        className="w-full bg-transparent p-4 text-base md:text-sm text-white focus:outline-none resize-none min-h-[100px]"
                       />
                       {/* Toolbar */}
                       <div className="bg-[#1e1e24] px-4 py-2 flex items-center justify-between border-t border-white/5">

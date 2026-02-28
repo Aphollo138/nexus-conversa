@@ -485,23 +485,23 @@ export default function PrivateChat({ initialTargetUser, onStartCall }: PrivateC
         {activeConversationId && activeUser ? (
           <>
             {/* Header */}
-            <div className="h-14 border-b border-[#26272D] flex items-center justify-between px-4 shadow-sm shrink-0 bg-[#313338] pl-14 md:pl-4">
-              <div className="flex items-center gap-3 overflow-hidden">
+            <div className="h-14 border-b border-[#26272D] flex items-center justify-between px-2 sm:px-4 shadow-sm shrink-0 bg-[#313338]">
+              <div className="flex items-center gap-2 sm:gap-3 overflow-hidden min-w-0">
                 <button 
                   onClick={() => {
                     setActiveConversationId(null);
                     setActiveUser(null);
                   }}
-                  className="md:hidden p-1 -ml-2 text-zinc-400 hover:text-white"
+                  className="md:hidden p-2 text-zinc-400 hover:text-white shrink-0"
                 >
                   <ArrowLeft className="w-6 h-6" />
                 </button>
                 
                 <div className="relative shrink-0">
                    {activeUser.avatarUrl && !isBlocked && !amIBlocked ? (
-                     <img src={activeUser.avatarUrl} className="w-6 h-6 rounded-full object-cover bg-zinc-700" />
+                     <img src={activeUser.avatarUrl} className="w-8 h-8 rounded-full object-cover bg-zinc-700" />
                    ) : (
-                     <div className="w-6 h-6 rounded-full bg-zinc-700 flex items-center justify-center text-[10px] font-bold text-white">
+                     <div className="w-8 h-8 rounded-full bg-zinc-700 flex items-center justify-center text-[10px] font-bold text-white">
                        {activeUser.username?.slice(0, 2).toUpperCase()}
                      </div>
                    )}
@@ -509,12 +509,12 @@ export default function PrivateChat({ initialTargetUser, onStartCall }: PrivateC
                 </div>
                 <h2 className="font-bold text-white text-base truncate">{activeUser.username}</h2>
               </div>
-              <div className="flex items-center gap-4 text-zinc-400 shrink-0">
-                 <button onClick={() => onStartCall && onStartCall(activeUser)}>
+              <div className="flex items-center gap-2 sm:gap-4 text-zinc-400 shrink-0">
+                 <button onClick={() => onStartCall && onStartCall(activeUser)} className="p-2 hover:bg-white/5 rounded-full transition-colors">
                    <Phone className="w-5 h-5 hover:text-green-400 cursor-pointer transition-colors" />
                  </button>
                  <Video className="w-5 h-5 hover:text-zinc-200 cursor-pointer hidden sm:block" />
-                 <Search className="w-5 h-5 hover:text-zinc-200 cursor-pointer" />
+                 <Search className="w-5 h-5 hover:text-zinc-200 cursor-pointer hidden sm:block" />
               </div>
             </div>
 
@@ -668,7 +668,7 @@ export default function PrivateChat({ initialTargetUser, onStartCall }: PrivateC
                    value={inputValue}
                    onChange={(e) => setInputValue(e.target.value)}
                    placeholder={`Conversar com @${activeUser.username}`}
-                   className="flex-1 bg-transparent text-zinc-200 placeholder-zinc-500 focus:outline-none text-sm font-medium min-w-0"
+                   className="flex-1 bg-transparent text-zinc-200 placeholder-zinc-500 focus:outline-none text-base md:text-sm font-medium min-w-0"
                  />
                  
                  <div className="flex items-center gap-2 shrink-0">

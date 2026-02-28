@@ -24,6 +24,8 @@ interface User {
   bannerPosition?: number;
   location?: string;
   about?: string;
+  isOnline?: boolean;
+  lastSeen?: any;
 }
 
 interface GlobalChatProps {
@@ -63,7 +65,8 @@ export default function GlobalChat({ onStartPrivateChat }: GlobalChatProps) {
     const fetchMembers = async () => {
       try {
         const usersCol = collection(db, 'users');
-        const userSnapshot = await getDocs(usersCol);
+        const qUsers = query(usersCol, orderBy('lastSeen', 'desc'));
+        const userSnapshot = await getDocs(qUsers);
         const userList: User[] = userSnapshot.docs
           .map(doc => ({
             uid: doc.id,
@@ -92,11 +95,13 @@ export default function GlobalChat({ onStartPrivateChat }: GlobalChatProps) {
       }
     };
 
+    const interval = setInterval(fetchMembers, 30000);
     fetchMembers();
     fetchCurrentUser();
 
     return () => {
       unsubscribe();
+      clearInterval(interval);
     };
   }, []);
 
@@ -330,7 +335,7 @@ export default function GlobalChat({ onStartPrivateChat }: GlobalChatProps) {
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               placeholder="Conversar em #global-chat"
-              className="flex-1 bg-transparent text-zinc-200 placeholder-zinc-500 focus:outline-none text-sm font-medium min-w-0"
+              className="flex-1 bg-transparent text-zinc-200 placeholder-zinc-500 focus:outline-none text-base md:text-sm font-medium min-w-0"
             />
             
             <div className="flex items-center gap-2 shrink-0">
@@ -392,16 +397,22 @@ export default function GlobalChat({ onStartPrivateChat }: GlobalChatProps) {
                         {getInitials(member.username)}
                       </div>
                     )}
-                    {/* Online Status Indicator (Mock) */}
-                    <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-[#23A559] rounded-full border-2 border-[#2B2D31]"></div>
+                    {/* Online Status Indicator */}
+                    <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#2B2D31] ${
+                      member.isOnline && member.lastSeen && (Date.now() - (member.lastSeen.toMillis ? member.lastSeen.toMillis() : new Date(member.lastSeen).getTime()) < 70000) 
+                      ? 'bg-[#23A559]' 
+                      : 'bg-zinc-500'
+                    }`}></div>
                   </div>
                   <div className="flex flex-col overflow-hidden">
                     <span className={`text-sm font-medium truncate ${selectedUser?.uid === member.uid ? 'text-white' : 'text-zinc-400 group-hover:text-zinc-300'}`}>
                       {member.username || 'User'}
                     </span>
-                    {/* Status Message (Mock) */}
+                    {/* Status Message */}
                     <span className="text-[10px] text-zinc-500 truncate">
-                      Online
+                      {member.isOnline && member.lastSeen && (Date.now() - (member.lastSeen.toMillis ? member.lastSeen.toMillis() : new Date(member.lastSeen).getTime()) < 70000) 
+                        ? 'Online' 
+                        : 'Offline'}
                     </span>
                   </div>
                 </div>

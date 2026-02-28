@@ -83,6 +83,53 @@ export default function Dashboard() {
     return () => unsubscribe();
   }, [userProfile?.uid, incomingCall]);
 
+  // Online Status Tracking
+  useEffect(() => {
+    if (!userProfile?.uid) return;
+
+    const userRef = doc(db, 'users', userProfile.uid);
+
+    // 1. Set online immediately
+    const setOnline = async () => {
+      try {
+        await updateDoc(userRef, {
+          isOnline: true,
+          lastSeen: serverTimestamp()
+        });
+      } catch (err) {
+        console.error("Error setting online status:", err);
+      }
+    };
+
+    setOnline();
+
+    // 2. Heartbeat every 30s
+    const interval = setInterval(() => {
+      setOnline();
+    }, 30000);
+
+    // 3. Set offline on disconnect/unload
+    const handleDisconnect = async () => {
+       // Note: This is best-effort. For 100% reliability, Cloud Functions + Realtime Database presence is better.
+       // But for this app, we'll try to set isOnline: false.
+       // We can't use await here reliably during unload, but sendBeacon is an option, 
+       // or just rely on the heartbeat timeout in the listener (GlobalChat).
+       try {
+           // We can't easily write to Firestore on unload without keep-alive, 
+           // so we rely on the "lastSeen" check in the UI.
+       } catch (e) { console.error(e); }
+    };
+
+    window.addEventListener('beforeunload', handleDisconnect);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('beforeunload', handleDisconnect);
+      // Try to set offline on unmount (e.g. logout)
+      updateDoc(userRef, { isOnline: false, lastSeen: serverTimestamp() }).catch(console.error);
+    };
+  }, [userProfile?.uid]);
+
   const handleStartCall = async (targetUser: UserProfile) => {
     if (!userProfile || !targetUser.uid) return;
     
