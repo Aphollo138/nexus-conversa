@@ -232,13 +232,13 @@ function Features() {
                   transition={{ duration: 0.5, delay: index * 0.2 }}
                   className="group p-6 sm:p-8 rounded-2xl border border-white/10 bg-black/50 backdrop-blur-sm hover:border-white/30 hover:shadow-[0_0_30px_rgba(255,255,255,0.05)] transition-all duration-500"
                 >
-                  <div className="mb-4 text-white/80 group-hover:text-white transition-colors">
+                  <div className="mb-4 text-white group-hover:text-white transition-colors drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]">
                     {feature.icon}
                   </div>
-                  <h3 className="font-display font-bold text-xl text-white mb-2 tracking-wide uppercase">
+                  <h3 className="font-display font-bold text-xl text-white mb-2 tracking-wide uppercase drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]">
                     {feature.title}
                   </h3>
-                  <p className="text-gray-500 font-light leading-relaxed group-hover:text-gray-400 transition-colors">
+                  <p className="text-zinc-300 font-medium leading-relaxed group-hover:text-white transition-colors drop-shadow-[0_0_2px_rgba(0,0,0,0.8)]">
                     {feature.description}
                   </p>
                 </motion.div>
@@ -302,14 +302,14 @@ function ConversationModes() {
                 className="group p-6 sm:p-8 rounded-2xl border border-white/10 bg-black/50 backdrop-blur-sm hover:border-white/30 hover:shadow-[inset_0_0_30px_rgba(255,255,255,0.05)] transition-all duration-500"
               >
                 <div className="flex items-start gap-6">
-                  <div className="p-3 rounded-full bg-white/5 border border-white/10 group-hover:bg-white/10 transition-colors">
+                  <div className="p-3 rounded-full bg-white/5 border border-white/10 group-hover:bg-white/10 transition-colors drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
                     <Shield className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-display font-bold text-xl text-white mb-2 tracking-wide uppercase">
+                    <h3 className="font-display font-bold text-xl text-white mb-2 tracking-wide uppercase drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]">
                       Chat Privado
                     </h3>
-                    <p className="text-gray-500 font-light leading-relaxed group-hover:text-gray-400 transition-colors">
+                    <p className="text-zinc-300 font-medium leading-relaxed group-hover:text-white transition-colors drop-shadow-[0_0_2px_rgba(0,0,0,0.8)]">
                       Privacidade Total. Criptografia de ponta a ponta para suas conversas secretas.
                     </p>
                   </div>
@@ -326,14 +326,14 @@ function ConversationModes() {
               >
                 <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-10 transition-opacity duration-100 mix-blend-overlay" />
                 <div className="flex items-start gap-6 relative z-10">
-                  <div className="p-3 rounded-full bg-white/5 border border-white/10 group-hover:bg-white/10 transition-colors">
+                  <div className="p-3 rounded-full bg-white/5 border border-white/10 group-hover:bg-white/10 transition-colors drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
                     <Globe className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-display font-bold text-xl text-white mb-2 tracking-wide uppercase">
+                    <h3 className="font-display font-bold text-xl text-white mb-2 tracking-wide uppercase drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]">
                       Salas Públicas
                     </h3>
-                    <p className="text-gray-500 font-light leading-relaxed group-hover:text-gray-400 transition-colors">
+                    <p className="text-zinc-300 font-medium leading-relaxed group-hover:text-white transition-colors drop-shadow-[0_0_2px_rgba(0,0,0,0.8)]">
                       Conecte-se com o Mundo. Salas temáticas 3D com voz e vídeo.
                     </p>
                   </div>
@@ -352,22 +352,15 @@ export default function Home() {
   return (
     <div className="bg-black min-h-screen text-white overflow-x-hidden relative">
       {/* Hero 3D Background Layer */}
-      {!isMobile && (
-        <div className="fixed inset-0 z-0 grayscale opacity-80 pointer-events-none lg:pointer-events-auto">
-          <Spline 
-            scene="https://prod.spline.design/dnN6ZvuJBbyN2Va1/scene.splinecode"
-            className="w-full h-full lg:translate-x-1/4"
-          />
-          {/* Overlay gradient to ensure text readability */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-transparent pointer-events-none" />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black pointer-events-none" />
-        </div>
-      )}
-
-      {/* Mobile Hero Background Fallback */}
-      {isMobile && (
-        <div className="fixed inset-0 z-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-zinc-900/50 via-black to-black" />
-      )}
+      <div className="fixed inset-0 z-0 grayscale opacity-80 pointer-events-none lg:pointer-events-auto">
+        <Spline 
+          scene="https://prod.spline.design/dnN6ZvuJBbyN2Va1/scene.splinecode"
+          className="w-full h-full lg:translate-x-1/4 scale-75 lg:scale-100"
+        />
+        {/* Overlay gradient to ensure text readability */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black pointer-events-none" />
+      </div>
 
       <Navbar />
       <Hero />

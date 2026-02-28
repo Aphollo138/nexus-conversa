@@ -43,6 +43,45 @@ export default function GlobalChat({ onStartPrivateChat }: GlobalChatProps) {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showMembersSidebar, setShowMembersSidebar] = useState(false); // Mobile state
   
+  const [systemMessages, setSystemMessages] = useState<Message[]>([]);
+  const prevOnlineMembersRef = useRef<Set<string>>(new Set());
+
+  // ... (existing useEffects)
+
+  // Track online members and generate system messages
+  useEffect(() => {
+    const currentOnlineMembers = new Set(
+      members
+        .filter(m => m.isOnline && m.lastSeen && (Date.now() - (m.lastSeen.toMillis ? m.lastSeen.toMillis() : new Date(m.lastSeen).getTime()) < 70000))
+        .map(m => m.uid)
+    );
+
+    // Check for disconnections
+    prevOnlineMembersRef.current.forEach(uid => {
+      if (!currentOnlineMembers.has(uid)) {
+        const user = members.find(m => m.uid === uid);
+        if (user) {
+          const systemMsg: Message = {
+            id: `system-${Date.now()}-${uid}`,
+            userId: 'system',
+            user: { name: 'System', avatar: '' },
+            content: `${user.username} desconectou-se.`,
+            createdAt: { toDate: () => new Date() } // Mock Timestamp
+          };
+          setSystemMessages(prev => [...prev, systemMsg]);
+        }
+      }
+    });
+
+    prevOnlineMembersRef.current = currentOnlineMembers;
+  }, [members]);
+
+  const displayedMessages = [...messages, ...systemMessages].sort((a, b) => {
+    const timeA = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : new Date(a.createdAt).getTime();
+    const timeB = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : new Date(b.createdAt).getTime();
+    return timeA - timeB;
+  });
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -224,6 +263,10 @@ export default function GlobalChat({ onStartPrivateChat }: GlobalChatProps) {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+  const onlineMembers = members.filter(member => 
+    member.isOnline && member.lastSeen && (Date.now() - (member.lastSeen.toMillis ? member.lastSeen.toMillis() : new Date(member.lastSeen).getTime()) < 70000)
+  );
+
   return (
     <div className="flex h-full w-full bg-[#313338] relative overflow-hidden">
       {/* Main Chat Area */}
@@ -247,7 +290,14 @@ export default function GlobalChat({ onStartPrivateChat }: GlobalChatProps) {
 
         {/* Messages Area */}
         <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-1 scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent">
-          {messages.map((msg) => (
+          {displayedMessages.map((msg) => (
+            msg.userId === 'system' ? (
+              <div key={msg.id} className="flex items-center justify-center py-2 opacity-50">
+                 <div className="h-px bg-white/10 w-8 mr-2"></div>
+                 <span className="text-xs text-zinc-500 italic">{msg.content}</span>
+                 <div className="h-px bg-white/10 w-8 ml-2"></div>
+              </div>
+            ) : (
             <div 
               key={msg.id} 
               className="group flex flex-row gap-4 px-2 py-1 hover:bg-white/5 rounded transition-colors duration-200"
@@ -259,7 +309,7 @@ export default function GlobalChat({ onStartPrivateChat }: GlobalChatProps) {
                   setPopoverPos({ x: e.clientX, y: e.clientY });
                   
                   // Try to find full user data
-                  const fullMember = members.find(m => m.uid === msg.userId);
+                  const fullMember = onlineMembers.find(m => m.uid === msg.userId);
                   const isMe = auth.currentUser?.uid === msg.userId;
                   
                   if (isMe && currentUserData) {
@@ -302,6 +352,7 @@ export default function GlobalChat({ onStartPrivateChat }: GlobalChatProps) {
                 </p>
               </div>
             </div>
+            )
           ))}
           <div ref={messagesEndRef} />
         </div>
@@ -374,13 +425,13 @@ export default function GlobalChat({ onStartPrivateChat }: GlobalChatProps) {
             `}
           >
             <div className="h-14 flex items-center px-4 shadow-sm shrink-0 justify-between">
-              <h3 className="font-bold text-zinc-400 text-xs uppercase tracking-wide">Membros — {members.length}</h3>
+              <h3 className="font-bold text-zinc-400 text-xs uppercase tracking-wide">Membros — {onlineMembers.length}</h3>
               <button onClick={() => setShowMembersSidebar(false)} className="md:hidden text-zinc-400">
                 <X className="w-5 h-5" />
               </button>
             </div>
             <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-2 scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent">
-              {members.map((member) => (
+              {onlineMembers.map((member) => (
                 <div 
                   key={member.uid}
                   onClick={() => {
