@@ -1,11 +1,5 @@
-
-
-
-
-
-
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Smile, Hash, X, UserPlus, Clock, MessageSquare, Check, Users } from 'lucide-react';
+import { Send, Smile, Hash, X, UserPlus, Clock, MessageSquare, Users } from 'lucide-react';
 import EmojiPicker, { Theme } from 'emoji-picker-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db, auth } from '../firebaseConfig';
@@ -308,7 +302,7 @@ export default function GlobalChat({ onStartPrivateChat }: GlobalChatProps) {
         </div>
 
         {/* Input Area */}
-        <div className="p-4 shrink-0 relative">
+        <div className="p-4 shrink-0 relative pb-[calc(1rem+env(safe-area-inset-bottom))]">
           {showEmojiPicker && (
             <div className="absolute bottom-20 right-8 z-50 shadow-2xl border border-white/10 rounded-xl overflow-hidden max-w-[90vw]">
               <EmojiPicker 

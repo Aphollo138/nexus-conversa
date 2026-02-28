@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Spline from '@splinetool/react-spline';
-import { Globe, MessageSquare, Users, LogOut, Edit2, ChevronRight, Settings, Ticket, Star, Menu, X, Phone, PhoneOff } from 'lucide-react';
+import { Globe, MessageSquare, Users, LogOut, ChevronRight, Settings, Ticket, Star, Menu, X, Phone, PhoneOff } from 'lucide-react';
 import { auth, db } from '../firebaseConfig';
 import { doc, getDoc, collection, addDoc, onSnapshot, query, where, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { onAuthStateChanged, signOut } from 'firebase/auth';

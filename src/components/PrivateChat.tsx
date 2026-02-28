@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Smile, Hash, Phone, Video, MoreVertical, Search, MessageSquare, Trash2, UserMinus, Ban, Flag, ArrowLeft } from 'lucide-react';
+import { Send, Smile, Hash, Phone, Video, Search, MessageSquare, Trash2, UserMinus, Ban, Flag, ArrowLeft } from 'lucide-react';
 import EmojiPicker, { Theme } from 'emoji-picker-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db, auth } from '../firebaseConfig';
@@ -631,7 +631,7 @@ export default function PrivateChat({ initialTargetUser, onStartCall }: PrivateC
             </div>
 
             {/* Input Area */}
-            <div className="p-4 shrink-0 relative">
+            <div className="p-4 shrink-0 relative pb-[calc(1rem+env(safe-area-inset-bottom))]">
                {!isFriend || isBlocked || amIBlocked ? (
                  <div className="bg-[#383A40] rounded-lg px-4 py-4 flex items-center justify-center text-zinc-400 gap-2 cursor-not-allowed opacity-80">
                    {isBlocked || amIBlocked ? <Ban className="w-5 h-5" /> : <UserMinus className="w-5 h-5" />}

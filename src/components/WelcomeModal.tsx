@@ -6,7 +6,7 @@ export default function WelcomeModal() {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    const hasSeenWelcome = localStorage.getItem('hasSeenWelcome_v1');
+    const hasSeenWelcome = sessionStorage.getItem('hasSeenWelcome_v1');
     if (!hasSeenWelcome) {
       setIsOpen(true);
     }
@@ -14,7 +14,7 @@ export default function WelcomeModal() {
 
   const handleClose = () => {
     setIsOpen(false);
-    localStorage.setItem('hasSeenWelcome_v1', 'true');
+    sessionStorage.setItem('hasSeenWelcome_v1', 'true');
   };
 
   const handleShare = async () => {
