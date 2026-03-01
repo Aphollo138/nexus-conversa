@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import Spline from '@splinetool/react-spline';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { Bot, ArrowRight, Menu, X, User, DoorOpen, Zap, Shield, Globe, Mic, MessageSquare, Video as VideoIcon, Phone } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -255,7 +255,36 @@ function Features() {
   );
 }
 
-function VideoSimulation() {
+function ChatSimulation() {
+  const [messages, setMessages] = useState<{id: number, text: string, isMe: boolean}[]>([
+    { id: 1, text: "E aí, já viu o novo recurso de salas 3D?", isMe: false }
+  ]);
+  const [isTyping, setIsTyping] = useState(false);
+
+  useEffect(() => {
+    const sequence = async () => {
+      await new Promise(r => setTimeout(r, 1500));
+      setIsTyping(true);
+      await new Promise(r => setTimeout(r, 2000));
+      setIsTyping(false);
+      setMessages(prev => [...prev, { id: 2, text: "Sim! É incrível como a imersão muda tudo.", isMe: true }]);
+      
+      await new Promise(r => setTimeout(r, 1000));
+      setIsTyping(true); // Other person typing
+      await new Promise(r => setTimeout(r, 2500));
+      setIsTyping(false);
+      setMessages(prev => [...prev, { id: 3, text: "A qualidade do áudio também está surreal, zero latência.", isMe: false }]);
+
+      await new Promise(r => setTimeout(r, 1500));
+      setIsTyping(true); // Me typing
+      await new Promise(r => setTimeout(r, 1500));
+      setIsTyping(false);
+      setMessages(prev => [...prev, { id: 4, text: "Vamos marcar uma call mais tarde para testar?", isMe: true }]);
+    };
+    
+    sequence();
+  }, []);
+
   return (
     <section id="simulation" className="relative w-full min-h-screen bg-black flex items-center justify-center py-20 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
@@ -267,60 +296,86 @@ function VideoSimulation() {
           className="text-center mb-16"
         >
           <h2 className="font-display font-bold text-4xl sm:text-6xl text-white mb-6 tracking-tight">
-            EXPERIÊNCIA <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">IMERSIVA</span>
+            CONVERSAS <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">FLUIDAS</span>
           </h2>
           <p className="text-zinc-400 max-w-2xl mx-auto text-lg">
-            Sinta-se presente. Nossa tecnologia de simulação cria ambientes virtuais onde a conversa flui naturalmente.
+            Interações naturais e instantâneas. A tecnologia desaparece para você se conectar de verdade.
           </p>
         </motion.div>
 
-        {/* Video Simulation Container */}
-        <div className="relative w-full max-w-5xl mx-auto bg-zinc-900 rounded-3xl overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(100,100,255,0.1)]">
-           {/* Split Screen Layout */}
-           <div className="grid grid-cols-1 md:grid-cols-2 h-[60vh] md:h-[500px]">
-              {/* Person 1 */}
-              <div className="relative w-full h-full border-b md:border-b-0 md:border-r border-black/50 overflow-hidden group">
-                <img 
-                  src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=1000&auto=format&fit=crop" 
-                  alt="Person 1" 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-lg text-sm font-medium flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                  Sarah Chen
-                </div>
-                <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md p-1.5 rounded-full">
-                  <Mic className="w-4 h-4 text-white" />
-                </div>
+        {/* Chat Interface Container */}
+        <div className="relative w-full max-w-md mx-auto bg-zinc-900/80 backdrop-blur-xl rounded-3xl overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] h-[600px] flex flex-col">
+           {/* Header */}
+           <div className="p-4 border-b border-white/5 flex items-center justify-between bg-white/5">
+              <div className="flex items-center gap-3">
+                 <div className="relative">
+                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200&auto=format&fit=crop" className="w-10 h-10 rounded-full object-cover" alt="Avatar" />
+                    <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-zinc-900"></div>
+                 </div>
+                 <div>
+                    <h3 className="font-bold text-white text-sm">Alice Freeman</h3>
+                    <span className="text-xs text-green-400">Online agora</span>
+                 </div>
               </div>
-
-              {/* Person 2 */}
-              <div className="relative w-full h-full overflow-hidden group">
-                <img 
-                  src="https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=1000&auto=format&fit=crop" 
-                  alt="Person 2" 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-lg text-sm font-medium flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                  Marcus Johnson
-                </div>
-                 <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md p-1.5 rounded-full">
-                  <div className="flex gap-0.5 items-end h-3">
-                    <div className="w-1 bg-green-500 animate-[music-bar_1s_ease-in-out_infinite] h-full"></div>
-                    <div className="w-1 bg-green-500 animate-[music-bar_1s_ease-in-out_infinite_0.2s] h-2/3"></div>
-                    <div className="w-1 bg-green-500 animate-[music-bar_1s_ease-in-out_infinite_0.4s] h-full"></div>
-                  </div>
-                </div>
+              <div className="flex gap-2 text-zinc-400">
+                 <Phone className="w-5 h-5 cursor-pointer hover:text-white transition-colors" />
+                 <VideoIcon className="w-5 h-5 cursor-pointer hover:text-white transition-colors" />
               </div>
            </div>
-           
-           {/* Overlay UI Controls */}
-           <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-4 bg-black/80 backdrop-blur-xl px-6 py-3 rounded-full border border-white/10 shadow-2xl z-20">
-              <button className="p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"><Mic className="w-5 h-5" /></button>
-              <button className="p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"><VideoIcon className="w-5 h-5" /></button>
-              <button className="p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"><MessageSquare className="w-5 h-5" /></button>
-              <button className="p-3 rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors"><Phone className="w-5 h-5 rotate-[135deg]" /></button>
+
+           {/* Messages Area */}
+           <div className="flex-1 p-4 overflow-y-auto flex flex-col gap-4">
+              <div className="text-center text-xs text-zinc-500 my-2">Hoje, 10:23</div>
+              
+              {messages.map((msg) => (
+                 <motion.div 
+                   key={msg.id}
+                   initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                   animate={{ opacity: 1, y: 0, scale: 1 }}
+                   className={`flex ${msg.isMe ? 'justify-end' : 'justify-start'}`}
+                 >
+                    <div className={`max-w-[80%] p-3 rounded-2xl text-sm ${
+                       msg.isMe 
+                       ? 'bg-blue-600 text-white rounded-tr-sm' 
+                       : 'bg-zinc-800 text-zinc-200 rounded-tl-sm'
+                    }`}>
+                       {msg.text}
+                    </div>
+                 </motion.div>
+              ))}
+
+              {/* Typing Indicator */}
+              <AnimatePresence>
+                {isTyping && (
+                   <motion.div 
+                     initial={{ opacity: 0, y: 10 }}
+                     animate={{ opacity: 1, y: 0 }}
+                     exit={{ opacity: 0, scale: 0.9 }}
+                     className="flex justify-start"
+                   >
+                      <div className="bg-zinc-800 p-4 rounded-2xl rounded-tl-sm flex gap-1.5 items-center h-10">
+                         <div className="w-1.5 h-1.5 bg-zinc-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                         <div className="w-1.5 h-1.5 bg-zinc-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                         <div className="w-1.5 h-1.5 bg-zinc-500 rounded-full animate-bounce"></div>
+                      </div>
+                   </motion.div>
+                )}
+              </AnimatePresence>
+           </div>
+
+           {/* Input Area */}
+           <div className="p-4 border-t border-white/5 bg-black/20">
+              <div className="flex items-center gap-2 bg-zinc-800/50 rounded-full px-4 py-2 border border-white/5">
+                 <input 
+                   type="text" 
+                   placeholder="Digite uma mensagem..." 
+                   className="bg-transparent border-none outline-none text-sm text-white flex-1 placeholder-zinc-500"
+                   disabled
+                 />
+                 <div className="p-1.5 bg-blue-600 rounded-full text-white">
+                    <ArrowRight className="w-4 h-4" />
+                 </div>
+              </div>
            </div>
         </div>
       </div>
@@ -331,7 +386,7 @@ function VideoSimulation() {
 export default function Home() {
   const isMobile = useIsMobile();
   return (
-    <div className="bg-black min-h-[100dvh] text-white overflow-x-hidden relative">
+    <div className="bg-black min-h-[100dvh] text-white overflow-x-hidden relative overflow-y-auto">
       {/* Hero 3D Background Layer */}
       <div className="fixed inset-0 z-0 grayscale opacity-80 pointer-events-none">
         {/* Mobile: Cube Scene */}
@@ -359,7 +414,7 @@ export default function Home() {
       <Hero />
       <div className="relative z-10 bg-black">
         <Features />
-        <VideoSimulation />
+        <ChatSimulation />
       </div>
     </div>
   );
