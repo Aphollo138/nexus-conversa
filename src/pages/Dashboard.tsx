@@ -309,8 +309,12 @@ export default function Dashboard() {
         
         {/* Logo / Header Area */}
         <div className="px-6 mb-10 flex items-center gap-3 pl-12 md:pl-6">
-          <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center shadow-[0_0_15px_rgba(255,255,255,0.3)]">
-            <div className="w-3 h-3 bg-black rounded-full" />
+          <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center shadow-[0_0_15px_rgba(255,255,255,0.3)] overflow-hidden">
+             <img 
+               src="https://i.postimg.cc/Nyv42tvK/Chat-GPT-Image-1-de-mar-de-2026-15-17-54.png" 
+               alt="Nexus Logo" 
+               className="w-full h-full object-cover"
+             />
           </div>
           <span className="font-display font-bold text-xl tracking-tight">Nexus</span>
         </div>
