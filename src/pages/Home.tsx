@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Spline from '@splinetool/react-spline';
-import { motion } from 'framer-motion';
-import { Bot, ArrowRight, Menu, X, User, DoorOpen, Zap, Shield, Globe } from 'lucide-react';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { Bot, ArrowRight, Menu, X, User, DoorOpen, Zap, Shield, Globe, Mic, MessageSquare, Video as VideoIcon, Phone } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 // Hook to check for mobile/tablet
@@ -20,6 +20,14 @@ function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
 
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+    setIsOpen(false);
+  };
+
   return (
     <nav className="fixed top-0 w-full z-50 bg-transparent pt-6 mix-blend-difference">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -37,15 +45,9 @@ function Navbar() {
           {/* Desktop Menu */}
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-12">
-              {['Home', 'Features', 'Community', 'Blog'].map((item) => (
-                <a
-                  key={item}
-                  href="#"
-                  className="text-white/70 hover:text-white transition-colors duration-300 text-sm font-medium tracking-wide uppercase"
-                >
-                  {item}
-                </a>
-              ))}
+              <button onClick={() => scrollToSection('home')} className="text-white/70 hover:text-white transition-colors duration-300 text-sm font-medium tracking-wide uppercase">Home</button>
+              <button onClick={() => scrollToSection('features')} className="text-white/70 hover:text-white transition-colors duration-300 text-sm font-medium tracking-wide uppercase">Funcionalidades</button>
+              <button onClick={() => scrollToSection('simulation')} className="text-white/70 hover:text-white transition-colors duration-300 text-sm font-medium tracking-wide uppercase">Demo</button>
             </div>
           </div>
 
@@ -85,15 +87,9 @@ function Navbar() {
           className="md:hidden bg-black border-b border-white/10"
         >
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            {['Home', 'Features', 'Community', 'Blog'].map((item) => (
-              <a
-                key={item}
-                href="#"
-                className="text-white block px-3 py-2 rounded-md text-base font-medium"
-              >
-                {item}
-              </a>
-            ))}
+            <button onClick={() => scrollToSection('home')} className="text-white block px-3 py-2 rounded-md text-base font-medium w-full text-left">Home</button>
+            <button onClick={() => scrollToSection('features')} className="text-white block px-3 py-2 rounded-md text-base font-medium w-full text-left">Funcionalidades</button>
+            <button onClick={() => scrollToSection('simulation')} className="text-white block px-3 py-2 rounded-md text-base font-medium w-full text-left">Demo</button>
             <div className="pt-4 flex flex-col gap-2">
               <button 
                 onClick={() => navigate('/login')}
@@ -119,7 +115,7 @@ function Hero() {
   const navigate = useNavigate();
   
   return (
-    <section className="relative w-full min-h-[100dvh] flex items-center z-10">
+    <section id="home" className="relative w-full min-h-[100dvh] flex items-center z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
           <motion.div
@@ -149,8 +145,11 @@ function Hero() {
                 </span>
               </button>
               
-              <button className="px-6 sm:px-8 py-3 sm:py-4 rounded-full border border-white/30 text-white font-medium text-base sm:text-lg hover:bg-white hover:text-black transition-all duration-300 w-full sm:w-auto">
-                Ver Demo
+              <button 
+                onClick={() => navigate('/login')}
+                className="px-6 sm:px-8 py-3 sm:py-4 rounded-full border border-white/30 text-white font-medium text-base sm:text-lg hover:bg-white hover:text-black transition-all duration-300 w-full sm:w-auto"
+              >
+                Fazer Login
               </button>
             </div>
 
@@ -175,38 +174,41 @@ function Features() {
   const isMobile = useIsMobile();
   const features = [
     {
-      icon: <User className="w-8 h-8" />,
-      title: "Crie seu Perfil",
-      description: "Identidade digital única com avatares personalizáveis e presença marcante."
+      icon: <Mic className="w-8 h-8" />,
+      title: "Ligação por Áudio",
+      description: "Qualidade cristalina. Converse com amigos e grupos com latência ultra-baixa e supressão de ruído por IA."
     },
     {
-      icon: <DoorOpen className="w-8 h-8" />,
-      title: "Entre em uma Sala",
-      description: "Ambientes virtuais imersivos projetados para colaboração e conexão profunda."
+      icon: <MessageSquare className="w-8 h-8" />,
+      title: "Mensagens Privadas",
+      description: "Segurança total. Suas conversas são criptografadas e entregues instantaneamente."
     },
     {
-      icon: <Zap className="w-8 h-8" />,
-      title: "Conversa em Tempo Real",
-      description: "Latência zero. Comunicação instantânea potencializada por IA generativa."
+      icon: <Globe className="w-8 h-8" />,
+      title: "Chat Global",
+      description: "Conecte-se com o mundo. Participe de comunidades vibrantes e descubra novas conexões."
     }
   ];
 
   return (
-    <section className="relative w-full min-h-screen bg-black flex items-center py-20 overflow-hidden">
-      {/* 3D Boat Background */}
+    <section id="features" className="relative w-full min-h-screen bg-black flex items-center py-20 overflow-hidden">
+      {/* 3D Boat Background - Desktop Only */}
       <div className="absolute right-0 bottom-0 w-full lg:w-2/3 h-full pointer-events-none z-0">
         <Spline 
-          scene="https://prod.spline.design/zusB8LVg-Dz5VwZa/scene.splinecode"
-          className="w-full h-full opacity-60 grayscale hidden lg:block"
+          scene="https://prod.spline.design/phdEYajKh5P-P9Kx/scene.splinecode"
+          className="w-full h-full opacity-80 hidden lg:block"
         />
         {/* Gradient Masks for smooth blending */}
         <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
       </div>
 
-      {/* Mobile Fallback Background */}
+      {/* Mobile Background - Clean Dark/White */}
       {isMobile && (
-         <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-zinc-800/40 via-black to-black" />
+         <div className="absolute inset-0 z-0 bg-black">
+            <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+            <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+         </div>
       )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
@@ -219,8 +221,8 @@ function Features() {
               transition={{ duration: 0.6 }}
             >
               <h2 className="font-display font-bold text-4xl sm:text-5xl text-white mb-12 tracking-tight">
-                FUNCIONALIDADES <br />
-                <span className="text-white/40">ESSENCIAIS.</span>
+                CONEXÃO <br />
+                <span className="text-white/40">SEM LIMITES.</span>
               </h2>
             </motion.div>
 
@@ -232,15 +234,15 @@ function Features() {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: index * 0.2 }}
-                  className="group p-6 sm:p-8 rounded-2xl border border-white/10 bg-black/50 backdrop-blur-sm hover:border-white/30 hover:shadow-[0_0_30px_rgba(255,255,255,0.05)] transition-all duration-500"
+                  className={`group p-6 sm:p-8 rounded-2xl border transition-all duration-500 ${isMobile ? 'bg-white/5 border-white/10 hover:bg-white hover:border-white' : 'bg-black/50 backdrop-blur-sm border-white/10 hover:border-white/30 hover:shadow-[0_0_30px_rgba(255,255,255,0.05)]'}`}
                 >
-                  <div className="mb-4 text-white group-hover:text-white transition-colors drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]">
+                  <div className={`mb-4 transition-colors drop-shadow-[0_0_8px_rgba(255,255,255,0.5)] ${isMobile ? 'text-white group-hover:text-black' : 'text-white group-hover:text-white'}`}>
                     {feature.icon}
                   </div>
-                  <h3 className="font-display font-bold text-xl text-white mb-2 tracking-wide uppercase drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]">
+                  <h3 className={`font-display font-bold text-xl mb-2 tracking-wide uppercase drop-shadow-[0_0_5px_rgba(255,255,255,0.3)] ${isMobile ? 'text-white group-hover:text-black' : 'text-white'}`}>
                     {feature.title}
                   </h3>
-                  <p className="text-zinc-300 font-medium leading-relaxed group-hover:text-white transition-colors drop-shadow-[0_0_2px_rgba(0,0,0,0.8)]">
+                  <p className={`font-medium leading-relaxed transition-colors drop-shadow-[0_0_2px_rgba(0,0,0,0.8)] ${isMobile ? 'text-zinc-400 group-hover:text-zinc-800' : 'text-zinc-300 group-hover:text-white'}`}>
                     {feature.description}
                   </p>
                 </motion.div>
@@ -253,92 +255,72 @@ function Features() {
   );
 }
 
-function ConversationModes() {
-  const isMobile = useIsMobile();
+function VideoSimulation() {
   return (
-    <section className="relative w-full min-h-screen bg-black flex items-center py-20 overflow-hidden">
+    <section id="simulation" className="relative w-full min-h-screen bg-black flex items-center justify-center py-20 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          
-          {/* Left Side: 3D Drone */}
-          <motion.div 
-            initial={{ opacity: 0, x: -100 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 1, ease: "easeOut" }}
-            className="h-[50vh] lg:h-screen w-full relative order-1 lg:order-1 hidden lg:block"
-          >
-            <div className="absolute inset-0 z-0 grayscale opacity-80">
-              <Spline scene="https://prod.spline.design/KDRrp0nO3eFlfaKY/scene.splinecode" />
-            </div>
-            {/* Gradient Masks */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-black pointer-events-none" />
-            <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black pointer-events-none" />
-          </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-16"
+        >
+          <h2 className="font-display font-bold text-4xl sm:text-6xl text-white mb-6 tracking-tight">
+            EXPERIÊNCIA <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-600">IMERSIVA</span>
+          </h2>
+          <p className="text-zinc-400 max-w-2xl mx-auto text-lg">
+            Sinta-se presente. Nossa tecnologia de simulação cria ambientes virtuais onde a conversa flui naturalmente.
+          </p>
+        </motion.div>
 
-          {/* Right Side: Content */}
-          <div className="flex flex-col gap-8 order-2 lg:order-2">
-            <motion.div
-              initial={{ opacity: 0, x: 100 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-            >
-              <h2 className="font-display font-bold text-4xl sm:text-5xl text-white mb-12 tracking-tight text-right">
-                MODOS DE <br />
-                <span className="text-white/40">CONVERSA.</span>
-              </h2>
-            </motion.div>
-
-            <div className="flex flex-col gap-6">
-              {/* Card A: Private Chat */}
-              <motion.div
-                initial={{ opacity: 0, x: 100 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                className="group p-6 sm:p-8 rounded-2xl border border-white/10 bg-black/50 backdrop-blur-sm hover:border-white/30 hover:shadow-[inset_0_0_30px_rgba(255,255,255,0.05)] transition-all duration-500"
+        {/* Video Simulation Container */}
+        <div className="relative w-full max-w-5xl mx-auto aspect-video rounded-3xl overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(100,100,255,0.1)] bg-zinc-900">
+           {/* Placeholder for Video - Using a high quality tech/connection video background */}
+           <video 
+             autoPlay 
+             loop 
+             muted 
+             playsInline
+             className="w-full h-full object-cover opacity-80"
+           >
+             <source src="https://cdn.coverr.co/videos/coverr-online-conference-call-5227/1080p.mp4" type="video/mp4" />
+             Your browser does not support the video tag.
+           </video>
+           
+           {/* Overlay UI Elements to make it look like the app */}
+           <div className="absolute inset-0 pointer-events-none">
+              <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-4 bg-black/50 backdrop-blur-md px-6 py-3 rounded-full border border-white/10">
+                 <div className="p-3 rounded-full bg-white/10 text-white"><Mic className="w-5 h-5" /></div>
+                 <div className="p-3 rounded-full bg-white/10 text-white"><VideoIcon className="w-5 h-5" /></div>
+                 <div className="p-3 rounded-full bg-red-500 text-white"><Phone className="w-5 h-5 rotate-[135deg]" /></div>
+              </div>
+              
+              {/* Floating User Bubbles Simulation */}
+              <motion.div 
+                animate={{ y: [0, -10, 0] }} 
+                transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+                className="absolute top-10 left-10 bg-black/60 backdrop-blur-md p-4 rounded-2xl border border-white/10 flex items-center gap-3"
               >
-                <div className="flex items-start gap-6">
-                  <div className="p-3 rounded-full bg-white/5 border border-white/10 group-hover:bg-white/10 transition-colors drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
-                    <Shield className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-display font-bold text-xl text-white mb-2 tracking-wide uppercase drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]">
-                      Chat Privado
-                    </h3>
-                    <p className="text-zinc-300 font-medium leading-relaxed group-hover:text-white transition-colors drop-shadow-[0_0_2px_rgba(0,0,0,0.8)]">
-                      Privacidade Total. Criptografia de ponta a ponta para suas conversas secretas.
-                    </p>
-                  </div>
-                </div>
+                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600"></div>
+                 <div>
+                    <div className="h-2 w-20 bg-white/20 rounded mb-1"></div>
+                    <div className="h-2 w-12 bg-white/10 rounded"></div>
+                 </div>
               </motion.div>
 
-              {/* Card B: Public Rooms */}
-              <motion.div
-                initial={{ opacity: 0, x: 100 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                className="group p-6 sm:p-8 rounded-2xl border border-white/10 bg-black/50 backdrop-blur-sm hover:border-white/30 hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] transition-all duration-500 relative overflow-hidden"
+              <motion.div 
+                animate={{ y: [0, 10, 0] }} 
+                transition={{ repeat: Infinity, duration: 5, ease: "easeInOut", delay: 1 }}
+                className="absolute top-20 right-10 bg-black/60 backdrop-blur-md p-4 rounded-2xl border border-white/10 flex items-center gap-3"
               >
-                <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-10 transition-opacity duration-100 mix-blend-overlay" />
-                <div className="flex items-start gap-6 relative z-10">
-                  <div className="p-3 rounded-full bg-white/5 border border-white/10 group-hover:bg-white/10 transition-colors drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
-                    <Globe className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-display font-bold text-xl text-white mb-2 tracking-wide uppercase drop-shadow-[0_0_5px_rgba(255,255,255,0.3)]">
-                      Salas Públicas
-                    </h3>
-                    <p className="text-zinc-300 font-medium leading-relaxed group-hover:text-white transition-colors drop-shadow-[0_0_2px_rgba(0,0,0,0.8)]">
-                      Conecte-se com o Mundo. Salas temáticas 3D com voz e vídeo.
-                    </p>
-                  </div>
-                </div>
+                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-teal-600"></div>
+                 <div>
+                    <div className="h-2 w-24 bg-white/20 rounded mb-1"></div>
+                    <div className="h-2 w-16 bg-white/10 rounded"></div>
+                 </div>
               </motion.div>
-            </div>
-          </div>
+           </div>
         </div>
       </div>
     </section>
@@ -376,7 +358,7 @@ export default function Home() {
       <Hero />
       <div className="relative z-10 bg-black">
         <Features />
-        <ConversationModes />
+        <VideoSimulation />
       </div>
     </div>
   );
