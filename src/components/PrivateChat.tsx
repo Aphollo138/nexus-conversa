@@ -601,7 +601,7 @@ export default function PrivateChat({ initialTargetUser, onStartCall }: PrivateC
                                )}
                              </div>
                           ) : (
-                             <div className="w-10 shrink-0 text-[10px] text-zinc-500 opacity-0 group-hover:opacity-100 text-right self-center select-none hidden sm:block">
+                             <div className="w-10 shrink-0 text-[10px] text-zinc-500 opacity-0 group-hover:opacity-100 text-right self-center select-none block">
                                 {formatTime(msg.createdAt)}
                              </div>
                           )}
