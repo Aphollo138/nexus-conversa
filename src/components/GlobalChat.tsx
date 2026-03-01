@@ -270,7 +270,7 @@ export default function GlobalChat({ onStartPrivateChat }: GlobalChatProps) {
   return (
     <div className="flex h-full w-full bg-[#313338] relative overflow-hidden">
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col min-w-0 h-full">
+      <div className="flex-1 flex flex-col min-w-0 bg-[#313338] relative">
         {/* Header */}
         <div className="h-14 border-b border-[#26272D] flex items-center justify-between px-4 shadow-sm shrink-0 pl-14 md:pl-4">
           <div className="flex items-center overflow-hidden">
@@ -507,13 +507,15 @@ export default function GlobalChat({ onStartPrivateChat }: GlobalChatProps) {
               `}
             >
                {/* Banner */}
-               <div className="h-24 bg-[#1e1f22] w-full relative">
+               <div className="h-24 bg-zinc-800 w-full relative">
                   {selectedUser.bannerUrl && (
                     <img 
                       src={selectedUser.bannerUrl} 
                       alt="Banner" 
                       className="w-full h-full object-cover" 
                       style={{ objectPosition: `center ${selectedUser.bannerPosition || 50}%` }}
+                      loading="lazy"
+                      referrerPolicy="no-referrer"
                     />
                   )}
                </div>
