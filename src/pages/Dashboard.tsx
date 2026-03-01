@@ -131,7 +131,36 @@ export default function Dashboard() {
     };
   }, [userProfile?.uid]);
 
-  // ... (rest of the code)
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const docRef = doc(db, 'users', user.uid);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            setUserProfile({ uid: user.uid, ...docSnap.data() } as UserProfile);
+          } else {
+             setUserProfile({ 
+               uid: user.uid,
+               username: user.displayName || 'User', 
+               avatarUrl: user.photoURL || '',
+               location: 'Unknown',
+               about: 'Membro do Nexus desde 2024.',
+               bannerPosition: 50
+             });
+          }
+        } catch (error) {
+          console.error("Error fetching profile:", error);
+        } finally {
+          setIsLoadingAuth(false);
+        }
+      } else {
+        navigate('/');
+        setIsLoadingAuth(false);
+      }
+    });
+    return () => unsubscribe();
+  }, [navigate]);
 
   if (isLoadingAuth) {
     return (
