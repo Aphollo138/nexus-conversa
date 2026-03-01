@@ -255,36 +255,7 @@ function Features() {
   );
 }
 
-function ChatSimulation() {
-  const [messages, setMessages] = useState<{id: number, text: string, isMe: boolean}[]>([
-    { id: 1, text: "E aí, já viu o novo recurso de salas 3D?", isMe: false }
-  ]);
-  const [isTyping, setIsTyping] = useState(false);
-
-  useEffect(() => {
-    const sequence = async () => {
-      await new Promise(r => setTimeout(r, 1500));
-      setIsTyping(true);
-      await new Promise(r => setTimeout(r, 2000));
-      setIsTyping(false);
-      setMessages(prev => [...prev, { id: 2, text: "Sim! É incrível como a imersão muda tudo.", isMe: true }]);
-      
-      await new Promise(r => setTimeout(r, 1000));
-      setIsTyping(true); // Other person typing
-      await new Promise(r => setTimeout(r, 2500));
-      setIsTyping(false);
-      setMessages(prev => [...prev, { id: 3, text: "A qualidade do áudio também está surreal, zero latência.", isMe: false }]);
-
-      await new Promise(r => setTimeout(r, 1500));
-      setIsTyping(true); // Me typing
-      await new Promise(r => setTimeout(r, 1500));
-      setIsTyping(false);
-      setMessages(prev => [...prev, { id: 4, text: "Vamos marcar uma call mais tarde para testar?", isMe: true }]);
-    };
-    
-    sequence();
-  }, []);
-
+function VideoSimulation() {
   return (
     <section id="simulation" className="relative w-full min-h-screen bg-black flex items-center justify-center py-20 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
@@ -296,87 +267,106 @@ function ChatSimulation() {
           className="text-center mb-16"
         >
           <h2 className="font-display font-bold text-4xl sm:text-6xl text-white mb-6 tracking-tight">
-            CONVERSAS <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">FLUIDAS</span>
+            CONEXÃO <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">REAL</span>
           </h2>
           <p className="text-zinc-400 max-w-2xl mx-auto text-lg">
-            Interações naturais e instantâneas. A tecnologia desaparece para você se conectar de verdade.
+            Sinta a emoção de cada mensagem. Vídeo e áudio em alta definição para aproximar quem está longe.
           </p>
         </motion.div>
 
-        {/* Chat Interface Container */}
-        <div className="relative w-full max-w-md mx-auto bg-zinc-900/80 backdrop-blur-xl rounded-3xl overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] h-[600px] flex flex-col">
-           {/* Header */}
-           <div className="p-4 border-b border-white/5 flex items-center justify-between bg-white/5">
-              <div className="flex items-center gap-3">
-                 <div className="relative">
-                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200&auto=format&fit=crop" className="w-10 h-10 rounded-full object-cover" alt="Avatar" />
-                    <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-zinc-900"></div>
-                 </div>
-                 <div>
-                    <h3 className="font-bold text-white text-sm">Alice Freeman</h3>
-                    <span className="text-xs text-green-400">Online agora</span>
-                 </div>
-              </div>
-              <div className="flex gap-2 text-zinc-400">
-                 <Phone className="w-5 h-5 cursor-pointer hover:text-white transition-colors" />
-                 <VideoIcon className="w-5 h-5 cursor-pointer hover:text-white transition-colors" />
-              </div>
-           </div>
-
-           {/* Messages Area */}
-           <div className="flex-1 p-4 overflow-y-auto flex flex-col gap-4">
-              <div className="text-center text-xs text-zinc-500 my-2">Hoje, 10:23</div>
+        {/* Dual Video Container */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+           {/* Person 1 - Left */}
+           <motion.div 
+             initial={{ opacity: 0, x: -50 }}
+             whileInView={{ opacity: 1, x: 0 }}
+             viewport={{ once: true }}
+             transition={{ duration: 0.8, delay: 0.2 }}
+             className="relative aspect-[9/16] md:aspect-[4/5] rounded-3xl overflow-hidden border border-white/10 shadow-[0_0_30px_rgba(0,0,0,0.5)] group"
+           >
+              <video 
+                autoPlay 
+                loop 
+                muted 
+                playsInline
+                className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-700"
+              >
+                <source src="https://cdn.coverr.co/videos/coverr-woman-texting-on-her-phone-5636/1080p.mp4" type="video/mp4" />
+              </video>
               
-              {messages.map((msg) => (
-                 <motion.div 
-                   key={msg.id}
-                   initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                   animate={{ opacity: 1, y: 0, scale: 1 }}
-                   className={`flex ${msg.isMe ? 'justify-end' : 'justify-start'}`}
-                 >
-                    <div className={`max-w-[80%] p-3 rounded-2xl text-sm ${
-                       msg.isMe 
-                       ? 'bg-blue-600 text-white rounded-tr-sm' 
-                       : 'bg-zinc-800 text-zinc-200 rounded-tl-sm'
-                    }`}>
-                       {msg.text}
+              {/* Overlay UI */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute bottom-6 left-6 right-6">
+                 <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-full border-2 border-white overflow-hidden">
+                       <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200&auto=format&fit=crop" className="w-full h-full object-cover" alt="Sarah" />
                     </div>
-                 </motion.div>
-              ))}
-
-              {/* Typing Indicator */}
-              <AnimatePresence>
-                {isTyping && (
-                   <motion.div 
-                     initial={{ opacity: 0, y: 10 }}
-                     animate={{ opacity: 1, y: 0 }}
-                     exit={{ opacity: 0, scale: 0.9 }}
-                     className="flex justify-start"
-                   >
-                      <div className="bg-zinc-800 p-4 rounded-2xl rounded-tl-sm flex gap-1.5 items-center h-10">
-                         <div className="w-1.5 h-1.5 bg-zinc-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                         <div className="w-1.5 h-1.5 bg-zinc-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                         <div className="w-1.5 h-1.5 bg-zinc-500 rounded-full animate-bounce"></div>
-                      </div>
-                   </motion.div>
-                )}
-              </AnimatePresence>
-           </div>
-
-           {/* Input Area */}
-           <div className="p-4 border-t border-white/5 bg-black/20">
-              <div className="flex items-center gap-2 bg-zinc-800/50 rounded-full px-4 py-2 border border-white/5">
-                 <input 
-                   type="text" 
-                   placeholder="Digite uma mensagem..." 
-                   className="bg-transparent border-none outline-none text-sm text-white flex-1 placeholder-zinc-500"
-                   disabled
-                 />
-                 <div className="p-1.5 bg-blue-600 rounded-full text-white">
-                    <ArrowRight className="w-4 h-4" />
+                    <div>
+                       <h3 className="font-bold text-white text-lg">Sarah</h3>
+                       <div className="flex items-center gap-1.5">
+                          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                          <span className="text-xs text-green-400 font-medium uppercase tracking-wider">Digitando...</span>
+                       </div>
+                    </div>
                  </div>
+                 
+                 {/* Message Bubble Animation */}
+                 <motion.div 
+                   initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                   whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                   transition={{ delay: 1, duration: 0.5 }}
+                   className="bg-white/10 backdrop-blur-md border border-white/10 p-4 rounded-2xl rounded-tl-sm text-sm text-white"
+                 >
+                    "Mal posso esperar para testar a nova sala 3D! 🚀"
+                 </motion.div>
               </div>
-           </div>
+           </motion.div>
+
+           {/* Person 2 - Right */}
+           <motion.div 
+             initial={{ opacity: 0, x: 50 }}
+             whileInView={{ opacity: 1, x: 0 }}
+             viewport={{ once: true }}
+             transition={{ duration: 0.8, delay: 0.4 }}
+             className="relative aspect-[9/16] md:aspect-[4/5] rounded-3xl overflow-hidden border border-white/10 shadow-[0_0_30px_rgba(0,0,0,0.5)] group"
+           >
+              <video 
+                autoPlay 
+                loop 
+                muted 
+                playsInline
+                className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-700"
+              >
+                <source src="https://cdn.coverr.co/videos/coverr-man-texting-outside-5666/1080p.mp4" type="video/mp4" />
+              </video>
+
+              {/* Overlay UI */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute bottom-6 left-6 right-6">
+                 <div className="flex items-center gap-3 mb-3 justify-end">
+                    <div className="text-right">
+                       <h3 className="font-bold text-white text-lg">Marcus</h3>
+                       <div className="flex items-center gap-1.5 justify-end">
+                          <span className="text-xs text-blue-400 font-medium uppercase tracking-wider">Online</span>
+                          <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                       </div>
+                    </div>
+                    <div className="w-10 h-10 rounded-full border-2 border-white overflow-hidden">
+                       <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&auto=format&fit=crop" className="w-full h-full object-cover" alt="Marcus" />
+                    </div>
+                 </div>
+
+                 {/* Message Bubble Animation */}
+                 <motion.div 
+                   initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                   whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                   transition={{ delay: 2.5, duration: 0.5 }}
+                   className="bg-blue-600/80 backdrop-blur-md border border-blue-500/30 p-4 rounded-2xl rounded-tr-sm text-sm text-white ml-auto max-w-[85%]"
+                 >
+                    "Já estou online te esperando. A qualidade está absurda!"
+                 </motion.div>
+              </div>
+           </motion.div>
         </div>
       </div>
     </section>
@@ -386,7 +376,7 @@ function ChatSimulation() {
 export default function Home() {
   const isMobile = useIsMobile();
   return (
-    <div className="bg-black min-h-[100dvh] text-white overflow-x-hidden relative overflow-y-auto">
+    <div className="bg-black min-h-[100dvh] text-white overflow-x-hidden relative">
       {/* Hero 3D Background Layer */}
       <div className="fixed inset-0 z-0 grayscale opacity-80 pointer-events-none">
         {/* Mobile: Cube Scene */}
@@ -414,7 +404,7 @@ export default function Home() {
       <Hero />
       <div className="relative z-10 bg-black">
         <Features />
-        <ChatSimulation />
+        <VideoSimulation />
       </div>
     </div>
   );
