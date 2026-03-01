@@ -563,7 +563,7 @@ export default function PrivateChat({ initialTargetUser, onStartCall }: PrivateC
                               user: isMe ? (currentUserProfile || { uid: auth.currentUser?.uid || '', username: 'Me' } as User) : activeUser!
                             });
                           }}
-                          className={`group flex gap-4 px-2 py-1 hover:bg-[#2e3035] rounded transition-colors ${!showHeader ? 'py-0.5' : 'mt-2'} ${isMe ? 'flex-row-reverse' : ''}`}
+                          className={`group flex gap-4 px-2 py-1 hover:bg-[#2e3035] rounded transition-colors ${!showHeader ? 'py-0.5' : 'mt-2'}`}
                         >
                           {showHeader ? (
                              <div 
@@ -601,14 +601,14 @@ export default function PrivateChat({ initialTargetUser, onStartCall }: PrivateC
                                )}
                              </div>
                           ) : (
-                             <div className={`w-10 shrink-0 text-[10px] text-zinc-500 opacity-0 group-hover:opacity-100 self-center select-none hidden sm:block ${isMe ? 'text-left' : 'text-right'}`}>
+                             <div className="w-10 shrink-0 text-[10px] text-zinc-500 opacity-0 group-hover:opacity-100 text-right self-center select-none hidden sm:block">
                                 {formatTime(msg.createdAt)}
                              </div>
                           )}
 
-                          <div className={`flex flex-col w-full min-w-0 ${isMe ? 'items-end' : 'items-start'}`}>
+                          <div className="flex flex-col w-full min-w-0">
                              {showHeader && (
-                               <div className={`flex items-baseline gap-2 flex-wrap ${isMe ? 'flex-row-reverse' : ''}`}>
+                               <div className="flex items-baseline gap-2 flex-wrap">
                                  <span className="font-medium text-white hover:underline cursor-pointer text-sm">
                                    {isMe ? (currentUserProfile?.username || 'Você') : activeUser.username}
                                  </span>
@@ -618,7 +618,7 @@ export default function PrivateChat({ initialTargetUser, onStartCall }: PrivateC
                                </div>
                              )}
                              <div className="relative group/msg">
-                               <p className={`text-zinc-300 text-sm leading-relaxed whitespace-pre-wrap break-words ${!showHeader ? 'ml-0' : ''} ${isMe ? 'text-right' : 'text-left'}`}>
+                               <p className={`text-zinc-300 text-sm leading-relaxed whitespace-pre-wrap break-words ${!showHeader ? 'ml-0' : ''}`}>
                                  {msg.content}
                                </p>
                                {/* Mobile Context Menu Button */}

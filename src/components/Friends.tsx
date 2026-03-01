@@ -9,6 +9,8 @@ interface User {
   username: string;
   avatarUrl: string;
   status?: string;
+  isOnline?: boolean;
+  lastSeen?: any;
 }
 
 interface FriendRequest {
@@ -30,6 +32,8 @@ interface FriendsProps {
 export default function Friends({ onStartPrivateChat }: FriendsProps) {
   const [activeTab, setActiveTab] = useState<'online' | 'all' | 'pending' | 'blocked' | 'add'>('online');
   const [friends, setFriends] = useState<User[]>([]);
+  const [allUsers, setAllUsers] = useState<User[]>([]); // Store all users for real-time status
+  const [friendIds, setFriendIds] = useState<string[]>([]); // Store friend UIDs
   const [pendingRequests, setPendingRequests] = useState<FriendRequest[]>([]);
   const [blockedUsers, setBlockedUsers] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -37,27 +41,40 @@ export default function Friends({ onStartPrivateChat }: FriendsProps) {
   const [searchResults, setSearchResults] = useState<User[]>([]);
   const [sentRequests, setSentRequests] = useState<string[]>([]); // UIDs of users we sent requests to
 
-  // Fetch Friends
+  // Fetch All Users for Real-time Status
   useEffect(() => {
-    if (!auth.currentUser) return;
-    const q = collection(db, 'users', auth.currentUser.uid, 'friends');
-    const unsubscribe = onSnapshot(q, async (snapshot) => {
-      const friendsList: User[] = [];
-      for (const docSnap of snapshot.docs) {
-        // Fetch full user details for each friend
-        const userRef = doc(db, 'users', docSnap.id);
-        const userSnap = await getDoc(userRef);
-        if (userSnap.exists()) {
-            friendsList.push({ uid: docSnap.id, ...userSnap.data() } as User);
-        } else {
-             // Fallback if user doc missing
-             friendsList.push({ uid: docSnap.id, username: 'Unknown', avatarUrl: '' });
-        }
-      }
-      setFriends(friendsList);
+    const q = query(collection(db, 'users'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const users: User[] = [];
+      snapshot.forEach((doc) => {
+        users.push({ uid: doc.id, ...doc.data() } as User);
+      });
+      setAllUsers(users);
     });
     return () => unsubscribe();
   }, []);
+
+  // Fetch Friends List (UIDs)
+  useEffect(() => {
+    if (!auth.currentUser) return;
+    const q = collection(db, 'users', auth.currentUser.uid, 'friends');
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setFriendIds(snapshot.docs.map(doc => doc.id));
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Derive friends with real-time data
+  useEffect(() => {
+    if (allUsers.length > 0 && friendIds.length > 0) {
+      const friendsList = allUsers.filter(user => friendIds.includes(user.uid));
+      setFriends(friendsList);
+    } else if (friendIds.length > 0 && allUsers.length === 0) {
+       // Wait for allUsers to load
+    } else {
+       setFriends([]);
+    }
+  }, [allUsers, friendIds]);
 
   // Fetch Pending Requests (Received)
   useEffect(() => {
@@ -200,9 +217,21 @@ export default function Friends({ onStartPrivateChat }: FriendsProps) {
       }
   };
 
-  const filteredFriends = friends.filter(friend => 
-    friend.username.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const isUserOnline = (user: User) => {
+      // Check if user is online and last seen within 70 seconds
+      if (!user.isOnline || !user.lastSeen) return false;
+      
+      const lastSeenTime = user.lastSeen.toMillis ? user.lastSeen.toMillis() : new Date(user.lastSeen).getTime();
+      return (Date.now() - lastSeenTime) < 70000;
+  };
+
+  const filteredFriends = friends.filter(friend => {
+    const matchesSearch = friend.username.toLowerCase().includes(searchQuery.toLowerCase());
+    if (activeTab === 'online') {
+        return matchesSearch && isUserOnline(friend);
+    }
+    return matchesSearch;
+  });
 
   return (
     <div className="flex flex-col h-full bg-[#313338] w-full">
@@ -430,7 +459,9 @@ export default function Friends({ onStartPrivateChat }: FriendsProps) {
             </h3>
 
             <div className="space-y-2">
-              {filteredFriends.map(friend => (
+              {filteredFriends.map(friend => {
+                const online = isUserOnline(friend);
+                return (
                 <div 
                   key={friend.uid}
                   onClick={() => onStartPrivateChat(friend)}
@@ -445,12 +476,12 @@ export default function Friends({ onStartPrivateChat }: FriendsProps) {
                           {friend.username.slice(0, 2).toUpperCase()}
                         </div>
                       )}
-                      {/* Online Status (Mock) */}
-                      <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#313338] ${activeTab === 'online' ? 'bg-green-500' : 'bg-zinc-500'}`}></div>
+                      {/* Online Status */}
+                      <div className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#313338] ${online ? 'bg-green-500' : 'bg-zinc-500'}`}></div>
                     </div>
                     <div>
                       <span className="text-white font-bold block text-sm">{friend.username}</span>
-                      <span className="text-zinc-400 text-xs">{friend.status || (activeTab === 'online' ? 'Online' : 'Offline')}</span>
+                      <span className="text-zinc-400 text-xs">{friend.status || (online ? 'Online' : 'Offline')}</span>
                     </div>
                   </div>
                   
@@ -463,7 +494,7 @@ export default function Friends({ onStartPrivateChat }: FriendsProps) {
                     </button>
                   </div>
                 </div>
-              ))}
+              )})}
             </div>
           </div>
         )}
