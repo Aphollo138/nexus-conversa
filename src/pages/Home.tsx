@@ -115,55 +115,111 @@ function Hero() {
   const navigate = useNavigate();
   
   return (
-    <section id="home" className="relative w-full min-h-[100dvh] flex items-center z-10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="flex flex-col justify-center text-center lg:text-left pt-20 lg:pt-0"
+    <section id="home" className="relative w-full min-h-screen flex flex-col items-center justify-center z-10 pt-32 pb-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex flex-col items-center">
+        
+        {/* Text Content */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="text-center max-w-4xl mx-auto"
+        >
+          <h1 className="font-display font-bold text-5xl sm:text-7xl lg:text-8xl leading-[0.9] mb-8 tracking-tighter">
+            <span className="block text-white">A NOVA ERA</span>
+            <span className="block text-white/50">DA CONVERSA</span>
+            <span className="block text-white">DIGITAL.</span>
+          </h1>
+
+          <p className="text-lg sm:text-xl text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed font-light">
+            Transforme a interação digital. Inteligência artificial e design imersivo unificados para experiências inesquecíveis.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 w-full mb-16">
+            <button 
+              onClick={() => navigate('/signup')}
+              className="group relative px-8 py-4 rounded-full bg-white text-black font-medium text-lg transition-all duration-300 hover:bg-gray-200 w-full sm:w-auto"
+            >
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                Começar Agora
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </span>
+            </button>
+            
+            <button 
+              onClick={() => navigate('/login')}
+              className="px-8 py-4 rounded-full border border-white/30 text-white font-medium text-lg hover:bg-white hover:text-black transition-all duration-300 w-full sm:w-auto"
+            >
+              Fazer Login
+            </button>
+          </div>
+        </motion.div>
+
+        {/* Premium Hero Video */}
+        <motion.div 
+          initial={{ opacity: 0, y: 50, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 1, delay: 0.2 }}
+          className="relative w-full max-w-5xl mx-auto mt-8 rounded-[2.5rem] overflow-hidden shadow-[0_0_100px_rgba(79,70,229,0.15)] border border-white/10 aspect-video group"
+        >
+          {/* Vídeo de fundo em loop */}
+          <video 
+            autoPlay 
+            loop 
+            muted 
+            playsInline 
+            className="w-full h-full object-cover opacity-60 scale-105 group-hover:scale-100 transition-transform duration-[2s]"
           >
-            <h1 className="font-display font-bold text-4xl sm:text-6xl lg:text-8xl leading-[0.9] mb-6 sm:mb-8 tracking-tighter">
-              <span className="block text-white">A NOVA ERA</span>
-              <span className="block text-white/50">DA CONVERSA</span>
-              <span className="block text-white">DIGITAL.</span>
-            </h1>
+            <source src="https://assets.mixkit.co/videos/preview/mixkit-young-woman-texting-on-her-smartphone-4340-large.mp4" type="video/mp4" />
+            Seu navegador não suporta vídeos.
+          </video>
 
-            <p className="text-base sm:text-xl text-gray-400 mb-8 sm:mb-10 max-w-lg mx-auto lg:mx-0 leading-relaxed font-light">
-              Transforme a interação digital. Inteligência artificial e design imersivo unificados para experiências inesquecíveis.
-            </p>
+          {/* Gradiente Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
 
-            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 justify-center lg:justify-start w-full">
-              <button 
-                onClick={() => navigate('/signup')}
-                className="group relative px-6 sm:px-8 py-3 sm:py-4 rounded-full bg-white text-black font-medium text-base sm:text-lg transition-all duration-300 hover:bg-gray-200 w-full sm:w-auto"
-              >
-                <span className="relative z-10 flex items-center justify-center gap-2">
-                  Começar Agora
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </span>
-              </button>
-              
-              <button 
-                onClick={() => navigate('/login')}
-                className="px-6 sm:px-8 py-3 sm:py-4 rounded-full border border-white/30 text-white font-medium text-base sm:text-lg hover:bg-white hover:text-black transition-all duration-300 w-full sm:w-auto"
-              >
-                Fazer Login
-              </button>
-            </div>
-
-            <div className="mt-16 flex items-center justify-center lg:justify-start gap-8 text-gray-500 text-xs font-mono tracking-widest uppercase">
-              <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                System Online
+          {/* Floating UI Elements (Glassmorphism) */}
+          <div className="absolute inset-0 pointer-events-none">
+            {/* Left Bubble */}
+            <motion.div 
+              initial={{ x: -50, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 1, duration: 0.8 }}
+              className="absolute bottom-12 left-8 md:bottom-20 md:left-16 bg-white/10 backdrop-blur-xl border border-white/20 p-4 md:p-6 rounded-3xl rounded-bl-none max-w-[200px] md:max-w-xs shadow-2xl"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-xs font-bold">JD</div>
+                <span className="text-xs text-white/60 font-medium">John Doe</span>
               </div>
-              <div>v2.4.0 Stable</div>
-            </div>
-          </motion.div>
-          
-          {/* Empty column to allow space for 3D object interaction on desktop */}
-          <div className="hidden lg:block pointer-events-none" />
+              <p className="text-sm md:text-base text-white font-medium leading-snug">
+                A interface desse app é de outro mundo! 🚀
+              </p>
+            </motion.div>
+
+            {/* Right Bubble */}
+            <motion.div 
+              initial={{ x: 50, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ delay: 2.5, duration: 0.8 }}
+              className="absolute top-12 right-8 md:top-20 md:right-16 bg-blue-600/20 backdrop-blur-xl border border-blue-500/30 p-4 md:p-6 rounded-3xl rounded-tr-none max-w-[200px] md:max-w-xs shadow-2xl"
+            >
+              <div className="flex items-center gap-3 mb-2 justify-end">
+                <span className="text-xs text-white/60 font-medium">Você</span>
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center text-xs font-bold">EU</div>
+              </div>
+              <p className="text-sm md:text-base text-white font-medium leading-snug text-right">
+                Sim! E a qualidade do vídeo é absurda. 🎥✨
+              </p>
+            </motion.div>
+          </div>
+        </motion.div>
+
+        {/* System Status */}
+        <div className="mt-16 flex items-center justify-center gap-8 text-gray-500 text-xs font-mono tracking-widest uppercase">
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            System Online
+          </div>
+          <div>v2.4.0 Stable</div>
         </div>
       </div>
     </section>
@@ -376,9 +432,9 @@ function VideoSimulation() {
 export default function Home() {
   const isMobile = useIsMobile();
   return (
-    <div className="bg-black min-h-[100dvh] text-white overflow-x-hidden relative">
+    <div className="min-h-screen overflow-x-hidden bg-zinc-950 text-white flex flex-col relative">
       {/* Hero 3D Background Layer */}
-      <div className="fixed inset-0 z-0 grayscale opacity-80 pointer-events-none">
+      <div className="fixed inset-0 z-0 grayscale opacity-40 pointer-events-none">
         {/* Mobile: Cube Scene */}
         <div className="lg:hidden w-full h-full">
            <Spline 
@@ -396,13 +452,12 @@ export default function Home() {
         </div>
 
         {/* Overlay gradient to ensure text readability */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-transparent pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-zinc-950 via-transparent to-zinc-950 pointer-events-none" />
       </div>
 
       <Navbar />
       <Hero />
-      <div className="relative z-10 bg-black">
+      <div className="relative z-10 bg-zinc-950">
         <Features />
         <VideoSimulation />
       </div>
