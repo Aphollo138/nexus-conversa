@@ -515,6 +515,22 @@ export default function PrivateChat({ initialTargetUser, onStartCall }: PrivateC
                  </button>
                  <Video className="w-5 h-5 hover:text-zinc-200 cursor-pointer block md:hidden" />
                  <Search className="w-5 h-5 hover:text-zinc-200 cursor-pointer hidden sm:block" />
+                 <button 
+                   onClick={(e) => {
+                     e.stopPropagation();
+                     // Use a dummy message for context menu to allow blocking user
+                     const dummyMsg = { id: 'header-action', content: '', senderId: activeUser.uid, createdAt: new Date() } as any;
+                     setContextMenu({
+                       x: e.clientX,
+                       y: e.clientY + 20,
+                       message: dummyMsg,
+                       user: activeUser
+                     });
+                   }}
+                   className="p-2 hover:bg-white/5 rounded-full transition-colors"
+                 >
+                   <MoreVertical className="w-5 h-5 hover:text-zinc-200 cursor-pointer" />
+                 </button>
               </div>
             </div>
 
@@ -562,6 +578,33 @@ export default function PrivateChat({ initialTargetUser, onStartCall }: PrivateC
                               message: msg,
                               user: isMe ? (currentUserProfile || { uid: auth.currentUser?.uid || '', username: 'Me' } as User) : activeUser!
                             });
+                          }}
+                          // Mobile Long Press Handlers
+                          onTouchStart={(e) => {
+                            const touch = e.touches[0];
+                            const timer = setTimeout(() => {
+                                setContextMenu({
+                                    x: touch.clientX,
+                                    y: touch.clientY,
+                                    message: msg,
+                                    user: isMe ? (currentUserProfile || { uid: auth.currentUser?.uid || '', username: 'Me' } as User) : activeUser!
+                                });
+                            }, 500);
+                            // Store timer in a data attribute or ref if possible, but for now we rely on closure if component doesn't re-render too fast
+                            // Better to use a ref for the timer ID
+                            (window as any).longPressTimer = timer;
+                          }}
+                          onTouchEnd={() => {
+                            if ((window as any).longPressTimer) {
+                                clearTimeout((window as any).longPressTimer);
+                                (window as any).longPressTimer = null;
+                            }
+                          }}
+                          onTouchMove={() => {
+                             if ((window as any).longPressTimer) {
+                                clearTimeout((window as any).longPressTimer);
+                                (window as any).longPressTimer = null;
+                            }
                           }}
                           className={`group flex gap-4 px-2 py-1 hover:bg-[#2e3035] rounded transition-colors ${!showHeader ? 'py-0.5' : 'mt-2'}`}
                         >
