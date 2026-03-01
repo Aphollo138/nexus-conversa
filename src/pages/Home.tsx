@@ -27,7 +27,7 @@ function Navbar() {
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
             <img 
-              src="https://i.postimg.cc/KYRsVc9D/Chat-GPT-Image-1-de-mar-de-2026-15-17-54.png" 
+              src="https://i.postimg.cc/Nyv42tvK/Chat-GPT-Image-1-de-mar-de-2026-15-17-54.png" 
               alt="Nexus Logo" 
               className="w-8 h-8 object-contain"
             />
