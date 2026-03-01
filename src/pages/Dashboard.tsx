@@ -109,22 +109,24 @@ export default function Dashboard() {
     }, 30000);
 
     // 3. Set offline on disconnect/unload
-    const handleDisconnect = async () => {
-       // Note: This is best-effort. For 100% reliability, Cloud Functions + Realtime Database presence is better.
-       // But for this app, we'll try to set isOnline: false.
-       // We can't use await here reliably during unload, but sendBeacon is an option, 
-       // or just rely on the heartbeat timeout in the listener (GlobalChat).
-       try {
-           // We can't easily write to Firestore on unload without keep-alive, 
-           // so we rely on the "lastSeen" check in the UI.
-       } catch (e) { console.error(e); }
+    const handleDisconnect = () => {
+       // Best-effort attempt to set offline status
+       if (document.visibilityState === 'hidden') {
+           // Use sendBeacon if possible, or just rely on heartbeat timeout
+           // Note: Firestore doesn't support sendBeacon directly.
+           // We rely on the heartbeat timeout in GlobalChat (70s) to mark as offline.
+           // But we can try to update local state if the user navigates away within the app.
+       }
     };
 
     window.addEventListener('beforeunload', handleDisconnect);
+    window.addEventListener('visibilitychange', handleDisconnect);
 
     return () => {
       clearInterval(interval);
       window.removeEventListener('beforeunload', handleDisconnect);
+      window.removeEventListener('visibilitychange', handleDisconnect);
+      
       // Try to set offline on unmount (e.g. logout)
       updateDoc(userRef, { isOnline: false, lastSeen: serverTimestamp() }).catch(console.error);
     };

@@ -190,10 +190,10 @@ function Features() {
   return (
     <section className="relative w-full min-h-screen bg-black flex items-center py-20 overflow-hidden">
       {/* 3D Boat Background */}
-      <div className="absolute right-0 bottom-0 w-full lg:w-2/3 h-full pointer-events-none z-0 hidden lg:block">
+      <div className="absolute right-0 bottom-0 w-full lg:w-2/3 h-full pointer-events-none z-0">
         <Spline 
           scene="https://prod.spline.design/zusB8LVg-Dz5VwZa/scene.splinecode"
-          className="w-full h-full opacity-60 grayscale"
+          className="w-full h-full opacity-60 grayscale hidden lg:block"
         />
         {/* Gradient Masks for smooth blending */}
         <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-transparent" />

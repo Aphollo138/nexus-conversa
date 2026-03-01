@@ -27,8 +27,17 @@ export default function Login() {
 
   return (
     <div className="flex h-screen w-full bg-black overflow-hidden text-white relative">
+      {/* Mobile Background 3D - Cube */}
+      <div className="absolute inset-0 z-0 md:hidden opacity-60 pointer-events-none">
+        <Spline 
+          scene="https://prod.spline.design/dnN6ZvuJBbyN2Va1/scene.splinecode" 
+          className="w-full h-full scale-125"
+        />
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
+      </div>
+
       {/* Left Panel - Form */}
-      <div className="w-full md:w-[500px] h-full flex flex-col justify-center px-8 sm:px-12 bg-black border-r border-white/10 z-20 relative">
+      <div className="w-full md:w-[500px] h-full flex flex-col justify-center px-8 sm:px-12 bg-transparent md:bg-black border-r border-white/10 z-20 relative">
         
         {/* Back Button */}
         <button 
