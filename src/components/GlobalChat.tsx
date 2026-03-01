@@ -100,24 +100,18 @@ export default function GlobalChat({ onStartPrivateChat }: GlobalChatProps) {
       setMessages(msgs);
     });
 
-    // Fetch members (users)
-    const fetchMembers = async () => {
-      try {
-        const usersCol = collection(db, 'users');
-        const qUsers = query(usersCol, orderBy('lastSeen', 'desc'));
-        const userSnapshot = await getDocs(qUsers);
-        const userList: User[] = userSnapshot.docs
-          .map(doc => ({
-            uid: doc.id,
-            ...doc.data()
-          } as User))
-          .filter(user => user.uid !== 'wh59n1VtHcXhNfKqYLYA10aNrBD2'); // Hide Admin from online list
-          
-        setMembers(userList);
-      } catch (error) {
-        console.error("Error fetching members:", error);
-      }
-    };
+    // Fetch members (users) with real-time updates
+    const qUsers = query(collection(db, 'users'), orderBy('lastSeen', 'desc'));
+    const unsubscribeUsers = onSnapshot(qUsers, (snapshot) => {
+      const userList: User[] = snapshot.docs
+        .map(doc => ({
+          uid: doc.id,
+          ...doc.data()
+        } as User))
+        .filter(user => user.uid !== 'wh59n1VtHcXhNfKqYLYA10aNrBD2'); // Hide Admin
+      
+      setMembers(userList);
+    });
 
     // Fetch current user data
     const fetchCurrentUser = async () => {
@@ -134,13 +128,11 @@ export default function GlobalChat({ onStartPrivateChat }: GlobalChatProps) {
       }
     };
 
-    const interval = setInterval(fetchMembers, 30000);
-    fetchMembers();
     fetchCurrentUser();
 
     return () => {
       unsubscribe();
-      clearInterval(interval);
+      unsubscribeUsers();
     };
   }, []);
 

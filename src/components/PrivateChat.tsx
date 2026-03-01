@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Smile, Hash, Phone, Video, Search, MessageSquare, Trash2, UserMinus, Ban, Flag, ArrowLeft } from 'lucide-react';
+import { Send, Smile, Hash, Phone, Video, Search, MessageSquare, Trash2, UserMinus, Ban, Flag, ArrowLeft, MoreVertical } from 'lucide-react';
 import EmojiPicker, { Theme } from 'emoji-picker-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db, auth } from '../firebaseConfig';
@@ -563,7 +563,7 @@ export default function PrivateChat({ initialTargetUser, onStartCall }: PrivateC
                               user: isMe ? (currentUserProfile || { uid: auth.currentUser?.uid || '', username: 'Me' } as User) : activeUser!
                             });
                           }}
-                          className={`group flex gap-4 px-2 py-1 hover:bg-[#2e3035] rounded transition-colors ${!showHeader ? 'py-0.5' : 'mt-2'}`}
+                          className={`group flex gap-4 px-2 py-1 hover:bg-[#2e3035] rounded transition-colors ${!showHeader ? 'py-0.5' : 'mt-2'} ${isMe ? 'flex-row-reverse' : ''}`}
                         >
                           {showHeader ? (
                              <div 
@@ -601,14 +601,14 @@ export default function PrivateChat({ initialTargetUser, onStartCall }: PrivateC
                                )}
                              </div>
                           ) : (
-                             <div className="w-10 shrink-0 text-[10px] text-zinc-500 opacity-0 group-hover:opacity-100 text-right self-center select-none hidden sm:block">
+                             <div className={`w-10 shrink-0 text-[10px] text-zinc-500 opacity-0 group-hover:opacity-100 self-center select-none hidden sm:block ${isMe ? 'text-left' : 'text-right'}`}>
                                 {formatTime(msg.createdAt)}
                              </div>
                           )}
 
-                          <div className="flex flex-col w-full min-w-0">
+                          <div className={`flex flex-col w-full min-w-0 ${isMe ? 'items-end' : 'items-start'}`}>
                              {showHeader && (
-                               <div className="flex items-baseline gap-2 flex-wrap">
+                               <div className={`flex items-baseline gap-2 flex-wrap ${isMe ? 'flex-row-reverse' : ''}`}>
                                  <span className="font-medium text-white hover:underline cursor-pointer text-sm">
                                    {isMe ? (currentUserProfile?.username || 'Você') : activeUser.username}
                                  </span>
@@ -617,9 +617,26 @@ export default function PrivateChat({ initialTargetUser, onStartCall }: PrivateC
                                  </span>
                                </div>
                              )}
-                             <p className={`text-zinc-300 text-sm leading-relaxed whitespace-pre-wrap break-words ${!showHeader ? 'ml-0' : ''}`}>
-                               {msg.content}
-                             </p>
+                             <div className="relative group/msg">
+                               <p className={`text-zinc-300 text-sm leading-relaxed whitespace-pre-wrap break-words ${!showHeader ? 'ml-0' : ''} ${isMe ? 'text-right' : 'text-left'}`}>
+                                 {msg.content}
+                               </p>
+                               {/* Mobile Context Menu Button */}
+                               <button 
+                                 className="md:hidden absolute -top-6 right-0 p-1 text-zinc-500 hover:text-white bg-[#2B2D31] rounded shadow-sm opacity-0 group-hover/msg:opacity-100 transition-opacity"
+                                 onClick={(e) => {
+                                   e.stopPropagation();
+                                   setContextMenu({
+                                     x: e.clientX,
+                                     y: e.clientY,
+                                     message: msg,
+                                     user: isMe ? (currentUserProfile || { uid: auth.currentUser?.uid || '', username: 'Me' } as User) : activeUser!
+                                   });
+                                 }}
+                               >
+                                 <MoreVertical className="w-3 h-3" />
+                               </button>
+                             </div>
                           </div>
                         </div>
                       );

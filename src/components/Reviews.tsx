@@ -214,7 +214,7 @@ export default function Reviews() {
                             "{review.comment}"
                         </p>
 
-                        {(isAdmin || auth.currentUser?.uid === review.userId) && (
+                        {(auth.currentUser?.uid === 'wh59n1VtHcXhNfKqYLYA10aNrBD2') && (
                             <button 
                                 onClick={() => handleDeleteReview(review.id)}
                                 className="absolute top-4 right-4 p-2 text-zinc-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
