@@ -47,7 +47,7 @@ function Navbar() {
             <div className="ml-10 flex items-baseline space-x-12">
               <button onClick={() => scrollToSection('home')} className="text-white/70 hover:text-white transition-colors duration-300 text-sm font-medium tracking-wide uppercase">Home</button>
               <button onClick={() => scrollToSection('features')} className="text-white/70 hover:text-white transition-colors duration-300 text-sm font-medium tracking-wide uppercase">Funcionalidades</button>
-              <button onClick={() => scrollToSection('simulation')} className="text-white/70 hover:text-white transition-colors duration-300 text-sm font-medium tracking-wide uppercase">Demo</button>
+              <button onClick={() => scrollToSection('demo')} className="text-white/70 hover:text-white transition-colors duration-300 text-sm font-medium tracking-wide uppercase">Demo</button>
             </div>
           </div>
 
@@ -89,7 +89,7 @@ function Navbar() {
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             <button onClick={() => scrollToSection('home')} className="text-white block px-3 py-2 rounded-md text-base font-medium w-full text-left">Home</button>
             <button onClick={() => scrollToSection('features')} className="text-white block px-3 py-2 rounded-md text-base font-medium w-full text-left">Funcionalidades</button>
-            <button onClick={() => scrollToSection('simulation')} className="text-white block px-3 py-2 rounded-md text-base font-medium w-full text-left">Demo</button>
+            <button onClick={() => scrollToSection('demo')} className="text-white block px-3 py-2 rounded-md text-base font-medium w-full text-left">Demo</button>
             <div className="pt-4 flex flex-col gap-2">
               <button 
                 onClick={() => navigate('/login')}
@@ -155,63 +155,18 @@ function Hero() {
           </div>
         </motion.div>
 
-        {/* Premium Hero Video */}
-        <motion.div 
-          initial={{ opacity: 0, y: 50, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 1, delay: 0.2 }}
-          className="relative w-full max-w-5xl mx-auto mt-8 rounded-[2.5rem] overflow-hidden shadow-[0_0_100px_rgba(79,70,229,0.15)] border border-white/10 aspect-video group"
-        >
-          {/* Vídeo de fundo em loop */}
-          <video 
-            autoPlay 
-            loop 
-            muted 
-            playsInline 
-            className="w-full h-full object-cover opacity-60 scale-105 group-hover:scale-100 transition-transform duration-[2s]"
-          >
-            <source src="https://assets.mixkit.co/videos/preview/mixkit-young-woman-texting-on-her-smartphone-4340-large.mp4" type="video/mp4" />
-            Seu navegador não suporta vídeos.
-          </video>
-
-          {/* Gradiente Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
-
-          {/* Floating UI Elements (Glassmorphism) */}
-          <div className="absolute inset-0 pointer-events-none">
-            {/* Left Bubble */}
-            <motion.div 
-              initial={{ x: -50, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 1, duration: 0.8 }}
-              className="absolute bottom-12 left-8 md:bottom-20 md:left-16 bg-white/10 backdrop-blur-xl border border-white/20 p-4 md:p-6 rounded-3xl rounded-bl-none max-w-[200px] md:max-w-xs shadow-2xl"
-            >
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-xs font-bold">JD</div>
-                <span className="text-xs text-white/60 font-medium">John Doe</span>
-              </div>
-              <p className="text-sm md:text-base text-white font-medium leading-snug">
-                A interface desse app é de outro mundo! 🚀
-              </p>
-            </motion.div>
-
-            {/* Right Bubble */}
-            <motion.div 
-              initial={{ x: 50, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 2.5, duration: 0.8 }}
-              className="absolute top-12 right-8 md:top-20 md:right-16 bg-blue-600/20 backdrop-blur-xl border border-blue-500/30 p-4 md:p-6 rounded-3xl rounded-tr-none max-w-[200px] md:max-w-xs shadow-2xl"
-            >
-              <div className="flex items-center gap-3 mb-2 justify-end">
-                <span className="text-xs text-white/60 font-medium">Você</span>
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center text-xs font-bold">EU</div>
-              </div>
-              <p className="text-sm md:text-base text-white font-medium leading-snug text-right">
-                Sim! E a qualidade do vídeo é absurda. 🎥✨
-              </p>
-            </motion.div>
-          </div>
-        </motion.div>
+        {/* Robot Mascot */}
+        <div className="flex justify-center mt-16 md:mt-24 relative">
+          {/* Efeito de luz atrás do robô */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-indigo-500/30 blur-[80px] rounded-full"></div>
+          
+          {/* O Robô */}
+          <img 
+            src="https://cdn-icons-png.flaticon.com/512/8133/8133391.png" 
+            alt="Mascote Robô" 
+            className="relative w-64 h-64 md:w-80 md:h-80 object-contain animate-[bounce_3s_ease-in-out_infinite] drop-shadow-[0_0_30px_rgba(79,70,229,0.3)] z-10"
+          />
+        </div>
 
         {/* System Status */}
         <div className="mt-16 flex items-center justify-center gap-8 text-gray-500 text-xs font-mono tracking-widest uppercase">
@@ -311,119 +266,74 @@ function Features() {
   );
 }
 
-function VideoSimulation() {
+function DemoSection() {
   return (
-    <section id="simulation" className="relative w-full min-h-screen bg-black flex items-center justify-center py-20 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
+    <section id="demo" className="relative w-full min-h-screen bg-black flex items-center justify-center py-24 px-4 overflow-hidden">
+      <div className="max-w-7xl mx-auto w-full relative z-10">
+        <h2 className="text-3xl md:text-5xl font-bold text-center mb-12 text-white">
+          Veja o Chat em <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-500">Ação</span>
+        </h2>
+
+        {/* Premium Hero Video (Moved Here) */}
+        <motion.div 
+          initial={{ opacity: 0, y: 50, scale: 0.95 }}
+          whileInView={{ opacity: 1, y: 0, scale: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-16"
+          transition={{ duration: 1, delay: 0.2 }}
+          className="relative w-full max-w-5xl mx-auto rounded-[2.5rem] overflow-hidden shadow-[0_0_100px_rgba(79,70,229,0.15)] border border-white/10 aspect-video group"
         >
-          <h2 className="font-display font-bold text-4xl sm:text-6xl text-white mb-6 tracking-tight">
-            CONEXÃO <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">REAL</span>
-          </h2>
-          <p className="text-zinc-400 max-w-2xl mx-auto text-lg">
-            Sinta a emoção de cada mensagem. Vídeo e áudio em alta definição para aproximar quem está longe.
-          </p>
+          {/* Vídeo de fundo em loop */}
+          <video 
+            autoPlay 
+            loop 
+            muted 
+            playsInline 
+            className="w-full h-full object-cover opacity-60 scale-105 group-hover:scale-100 transition-transform duration-[2s]"
+          >
+            <source src="https://assets.mixkit.co/videos/preview/mixkit-young-woman-texting-on-her-smartphone-4340-large.mp4" type="video/mp4" />
+            Seu navegador não suporta vídeos.
+          </video>
+
+          {/* Gradiente Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+
+          {/* Floating UI Elements (Glassmorphism) */}
+          <div className="absolute inset-0 pointer-events-none">
+            {/* Left Bubble */}
+            <motion.div 
+              initial={{ x: -50, opacity: 0 }}
+              whileInView={{ x: 0, opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 1, duration: 0.8 }}
+              className="absolute bottom-12 left-8 md:bottom-20 md:left-16 bg-white/10 backdrop-blur-xl border border-white/20 p-4 md:p-6 rounded-3xl rounded-bl-none max-w-[200px] md:max-w-xs shadow-2xl"
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-xs font-bold">JD</div>
+                <span className="text-xs text-white/60 font-medium">John Doe</span>
+              </div>
+              <p className="text-sm md:text-base text-white font-medium leading-snug">
+                A interface desse app é de outro mundo! 🚀
+              </p>
+            </motion.div>
+
+            {/* Right Bubble */}
+            <motion.div 
+              initial={{ x: 50, opacity: 0 }}
+              whileInView={{ x: 0, opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 2.5, duration: 0.8 }}
+              className="absolute top-12 right-8 md:top-20 md:right-16 bg-blue-600/20 backdrop-blur-xl border border-blue-500/30 p-4 md:p-6 rounded-3xl rounded-tr-none max-w-[200px] md:max-w-xs shadow-2xl"
+            >
+              <div className="flex items-center gap-3 mb-2 justify-end">
+                <span className="text-xs text-white/60 font-medium">Você</span>
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center text-xs font-bold">EU</div>
+              </div>
+              <p className="text-sm md:text-base text-white font-medium leading-snug text-right">
+                Sim! E a qualidade do vídeo é absurda. 🎥✨
+              </p>
+            </motion.div>
+          </div>
         </motion.div>
-
-        {/* Dual Video Container */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
-           {/* Person 1 - Left */}
-           <motion.div 
-             initial={{ opacity: 0, x: -50 }}
-             whileInView={{ opacity: 1, x: 0 }}
-             viewport={{ once: true }}
-             transition={{ duration: 0.8, delay: 0.2 }}
-             className="relative aspect-[9/16] md:aspect-[4/5] rounded-3xl overflow-hidden border border-white/10 shadow-[0_0_30px_rgba(0,0,0,0.5)] group"
-           >
-              <video 
-                autoPlay 
-                loop 
-                muted 
-                playsInline
-                className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-700"
-              >
-                <source src="https://cdn.coverr.co/videos/coverr-woman-texting-on-her-phone-5636/1080p.mp4" type="video/mp4" />
-              </video>
-              
-              {/* Overlay UI */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
-              <div className="absolute bottom-6 left-6 right-6">
-                 <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 rounded-full border-2 border-white overflow-hidden">
-                       <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200&auto=format&fit=crop" className="w-full h-full object-cover" alt="Sarah" />
-                    </div>
-                    <div>
-                       <h3 className="font-bold text-white text-lg">Sarah</h3>
-                       <div className="flex items-center gap-1.5">
-                          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                          <span className="text-xs text-green-400 font-medium uppercase tracking-wider">Digitando...</span>
-                       </div>
-                    </div>
-                 </div>
-                 
-                 {/* Message Bubble Animation */}
-                 <motion.div 
-                   initial={{ opacity: 0, y: 20, scale: 0.9 }}
-                   whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                   transition={{ delay: 1, duration: 0.5 }}
-                   className="bg-white/10 backdrop-blur-md border border-white/10 p-4 rounded-2xl rounded-tl-sm text-sm text-white"
-                 >
-                    "Mal posso esperar para testar a nova sala 3D! 🚀"
-                 </motion.div>
-              </div>
-           </motion.div>
-
-           {/* Person 2 - Right */}
-           <motion.div 
-             initial={{ opacity: 0, x: 50 }}
-             whileInView={{ opacity: 1, x: 0 }}
-             viewport={{ once: true }}
-             transition={{ duration: 0.8, delay: 0.4 }}
-             className="relative aspect-[9/16] md:aspect-[4/5] rounded-3xl overflow-hidden border border-white/10 shadow-[0_0_30px_rgba(0,0,0,0.5)] group"
-           >
-              <video 
-                autoPlay 
-                loop 
-                muted 
-                playsInline
-                className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-700"
-              >
-                <source src="https://cdn.coverr.co/videos/coverr-man-texting-outside-5666/1080p.mp4" type="video/mp4" />
-              </video>
-
-              {/* Overlay UI */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
-              <div className="absolute bottom-6 left-6 right-6">
-                 <div className="flex items-center gap-3 mb-3 justify-end">
-                    <div className="text-right">
-                       <h3 className="font-bold text-white text-lg">Marcus</h3>
-                       <div className="flex items-center gap-1.5 justify-end">
-                          <span className="text-xs text-blue-400 font-medium uppercase tracking-wider">Online</span>
-                          <div className="w-2 h-2 bg-blue-500 rounded-full" />
-                       </div>
-                    </div>
-                    <div className="w-10 h-10 rounded-full border-2 border-white overflow-hidden">
-                       <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&auto=format&fit=crop" className="w-full h-full object-cover" alt="Marcus" />
-                    </div>
-                 </div>
-
-                 {/* Message Bubble Animation */}
-                 <motion.div 
-                   initial={{ opacity: 0, y: 20, scale: 0.9 }}
-                   whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                   transition={{ delay: 2.5, duration: 0.5 }}
-                   className="bg-blue-600/80 backdrop-blur-md border border-blue-500/30 p-4 rounded-2xl rounded-tr-sm text-sm text-white ml-auto max-w-[85%]"
-                 >
-                    "Já estou online te esperando. A qualidade está absurda!"
-                 </motion.div>
-              </div>
-           </motion.div>
-        </div>
       </div>
     </section>
   );
@@ -459,7 +369,7 @@ export default function Home() {
       <Hero />
       <div className="relative z-10 bg-zinc-950">
         <Features />
-        <VideoSimulation />
+        <DemoSection />
       </div>
     </div>
   );
