@@ -26,7 +26,7 @@ export default function Login() {
   };
 
   return (
-    <div className="flex h-screen w-full bg-black overflow-hidden text-white relative">
+    <div className="flex h-[100dvh] w-full bg-black overflow-hidden text-white relative">
       {/* Mobile Background 3D - Cube */}
       <div className="absolute inset-0 z-0 md:hidden opacity-60 pointer-events-none">
         <Spline 

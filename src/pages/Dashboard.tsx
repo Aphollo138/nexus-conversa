@@ -111,27 +111,76 @@ export default function Dashboard() {
 
     // 3. Set offline on disconnect/unload
     const handleDisconnect = () => {
-       // Best-effort attempt to set offline status
-       if (document.visibilityState === 'hidden') {
-           // Use sendBeacon if possible, or just rely on heartbeat timeout
-           // Note: Firestore doesn't support sendBeacon directly.
-           // We rely on the heartbeat timeout in GlobalChat (70s) to mark as offline.
-           // But we can try to update local state if the user navigates away within the app.
+       if (userProfile?.uid) {
+           const userRef = doc(db, 'users', userProfile.uid);
+           updateDoc(userRef, { isOnline: false, lastSeen: serverTimestamp() }).catch(console.error);
        }
     };
 
     window.addEventListener('beforeunload', handleDisconnect);
-    window.addEventListener('visibilitychange', handleDisconnect);
 
     return () => {
       clearInterval(interval);
       window.removeEventListener('beforeunload', handleDisconnect);
-      window.removeEventListener('visibilitychange', handleDisconnect);
       
       // Try to set offline on unmount (e.g. logout)
-      updateDoc(userRef, { isOnline: false, lastSeen: serverTimestamp() }).catch(console.error);
+      if (userProfile?.uid) {
+          const userRef = doc(db, 'users', userProfile.uid);
+          updateDoc(userRef, { isOnline: false, lastSeen: serverTimestamp() }).catch(console.error);
+      }
     };
   }, [userProfile?.uid]);
+
+  // ... (rest of the code)
+
+  if (isLoadingAuth) {
+    return (
+      <div className="bg-black h-[100dvh] w-full flex items-center justify-center text-white">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-white/10 border-t-white rounded-full animate-spin" />
+          <p className="text-zinc-500 text-sm tracking-widest uppercase animate-pulse">Carregando Nexus...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const getInitials = (name: string) => {
+    return name ? name.slice(0, 2).toUpperCase() : 'US';
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      navigate('/');
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    if (tab === 'global') {
+      setActiveView('global');
+    } else if (tab === 'private') {
+      setActiveView('private');
+    } else if (tab === 'friends') {
+      setActiveView('friends');
+    } else if (tab === 'tickets') {
+      setActiveView('tickets');
+    } else if (tab === 'reviews') {
+      setActiveView('reviews');
+    } else {
+      setActiveView('home');
+    }
+    setIsSidebarOpen(false); // Close sidebar on mobile after selection
+  };
+
+  const handleStartPrivateChat = (targetUser: UserProfile) => {
+    setPrivateChatTarget(targetUser);
+    setActiveTab('private');
+    setActiveView('private');
+    setIsSidebarOpen(false);
+  };
 
   const handleStartCall = async (targetUser: UserProfile) => {
     if (!userProfile || !targetUser.uid) return;
@@ -188,88 +237,8 @@ export default function Dashboard() {
     setActiveCall(null);
   };
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        try {
-          const docRef = doc(db, 'users', user.uid);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            setUserProfile({ uid: user.uid, ...docSnap.data() } as UserProfile);
-          } else {
-             setUserProfile({ 
-               uid: user.uid,
-               username: user.displayName || 'User', 
-               avatarUrl: user.photoURL || '',
-               location: 'Unknown',
-               about: 'Membro do Nexus desde 2024.',
-               bannerPosition: 50
-             });
-          }
-        } catch (error) {
-          console.error("Error fetching profile:", error);
-        } finally {
-          setIsLoadingAuth(false);
-        }
-      } else {
-        navigate('/');
-        setIsLoadingAuth(false);
-      }
-    });
-    return () => unsubscribe();
-  }, [navigate]);
-
-  if (isLoadingAuth) {
-    return (
-      <div className="bg-black h-dvh w-full flex items-center justify-center text-white">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-white/10 border-t-white rounded-full animate-spin" />
-          <p className="text-zinc-500 text-sm tracking-widest uppercase animate-pulse">Carregando Nexus...</p>
-        </div>
-      </div>
-    );
-  }
-
-  const getInitials = (name: string) => {
-    return name ? name.slice(0, 2).toUpperCase() : 'US';
-  };
-
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      navigate('/');
-    } catch (error) {
-      console.error("Error signing out:", error);
-    }
-  };
-
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
-    if (tab === 'global') {
-      setActiveView('global');
-    } else if (tab === 'private') {
-      setActiveView('private');
-    } else if (tab === 'friends') {
-      setActiveView('friends');
-    } else if (tab === 'tickets') {
-      setActiveView('tickets');
-    } else if (tab === 'reviews') {
-      setActiveView('reviews');
-    } else {
-      setActiveView('home');
-    }
-    setIsSidebarOpen(false); // Close sidebar on mobile after selection
-  };
-
-  const handleStartPrivateChat = (targetUser: UserProfile) => {
-    setPrivateChatTarget(targetUser);
-    setActiveTab('private');
-    setActiveView('private');
-    setIsSidebarOpen(false);
-  };
-
   return (
-    <div className="bg-black h-dvh w-full flex overflow-hidden text-white font-sans relative">
+    <div className="bg-black h-[100dvh] w-full flex overflow-hidden text-white font-sans relative">
       <SettingsModal 
         isOpen={isSettingsOpen} 
         onClose={() => setIsSettingsOpen(false)} 

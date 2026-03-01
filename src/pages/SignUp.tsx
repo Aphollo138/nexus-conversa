@@ -83,7 +83,7 @@ export default function SignUp() {
   };
 
   return (
-    <div className="flex h-screen w-full bg-black overflow-hidden text-white relative">
+    <div className="flex h-[100dvh] w-full bg-black overflow-hidden text-white relative">
       {/* Onboarding Wizard Overlay */}
       {showOnboarding && (
         <OnboardingWizard initialUsername={username} onComplete={() => navigate('/dashboard')} />

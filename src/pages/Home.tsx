@@ -344,7 +344,7 @@ function ConversationModes() {
 export default function Home() {
   const isMobile = useIsMobile();
   return (
-    <div className="bg-black min-h-screen text-white overflow-x-hidden relative">
+    <div className="bg-black min-h-[100dvh] text-white overflow-x-hidden relative">
       {/* Hero 3D Background Layer */}
       <div className="fixed inset-0 z-0 grayscale opacity-80 pointer-events-none lg:pointer-events-auto">
         {/* Mobile: Cube Scene */}
