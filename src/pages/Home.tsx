@@ -275,51 +275,52 @@ function VideoSimulation() {
         </motion.div>
 
         {/* Video Simulation Container */}
-        <div className="relative w-full max-w-5xl mx-auto aspect-video rounded-3xl overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(100,100,255,0.1)] bg-zinc-900">
-           {/* Placeholder for Video - Using a high quality tech/connection video background */}
-           <video 
-             autoPlay 
-             loop 
-             muted 
-             playsInline
-             className="w-full h-full object-cover opacity-80"
-           >
-             <source src="https://cdn.coverr.co/videos/coverr-online-conference-call-5227/1080p.mp4" type="video/mp4" />
-             Your browser does not support the video tag.
-           </video>
-           
-           {/* Overlay UI Elements to make it look like the app */}
-           <div className="absolute inset-0 pointer-events-none">
-              <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-4 bg-black/50 backdrop-blur-md px-6 py-3 rounded-full border border-white/10">
-                 <div className="p-3 rounded-full bg-white/10 text-white"><Mic className="w-5 h-5" /></div>
-                 <div className="p-3 rounded-full bg-white/10 text-white"><VideoIcon className="w-5 h-5" /></div>
-                 <div className="p-3 rounded-full bg-red-500 text-white"><Phone className="w-5 h-5 rotate-[135deg]" /></div>
+        <div className="relative w-full max-w-5xl mx-auto bg-zinc-900 rounded-3xl overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(100,100,255,0.1)]">
+           {/* Split Screen Layout */}
+           <div className="grid grid-cols-1 md:grid-cols-2 h-[60vh] md:h-[500px]">
+              {/* Person 1 */}
+              <div className="relative w-full h-full border-b md:border-b-0 md:border-r border-black/50 overflow-hidden group">
+                <img 
+                  src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=1000&auto=format&fit=crop" 
+                  alt="Person 1" 
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-lg text-sm font-medium flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                  Sarah Chen
+                </div>
+                <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md p-1.5 rounded-full">
+                  <Mic className="w-4 h-4 text-white" />
+                </div>
               </div>
-              
-              {/* Floating User Bubbles Simulation */}
-              <motion.div 
-                animate={{ y: [0, -10, 0] }} 
-                transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-                className="absolute top-10 left-10 bg-black/60 backdrop-blur-md p-4 rounded-2xl border border-white/10 flex items-center gap-3"
-              >
-                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600"></div>
-                 <div>
-                    <div className="h-2 w-20 bg-white/20 rounded mb-1"></div>
-                    <div className="h-2 w-12 bg-white/10 rounded"></div>
-                 </div>
-              </motion.div>
 
-              <motion.div 
-                animate={{ y: [0, 10, 0] }} 
-                transition={{ repeat: Infinity, duration: 5, ease: "easeInOut", delay: 1 }}
-                className="absolute top-20 right-10 bg-black/60 backdrop-blur-md p-4 rounded-2xl border border-white/10 flex items-center gap-3"
-              >
-                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-teal-600"></div>
-                 <div>
-                    <div className="h-2 w-24 bg-white/20 rounded mb-1"></div>
-                    <div className="h-2 w-16 bg-white/10 rounded"></div>
-                 </div>
-              </motion.div>
+              {/* Person 2 */}
+              <div className="relative w-full h-full overflow-hidden group">
+                <img 
+                  src="https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=1000&auto=format&fit=crop" 
+                  alt="Person 2" 
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-lg text-sm font-medium flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                  Marcus Johnson
+                </div>
+                 <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md p-1.5 rounded-full">
+                  <div className="flex gap-0.5 items-end h-3">
+                    <div className="w-1 bg-green-500 animate-[music-bar_1s_ease-in-out_infinite] h-full"></div>
+                    <div className="w-1 bg-green-500 animate-[music-bar_1s_ease-in-out_infinite_0.2s] h-2/3"></div>
+                    <div className="w-1 bg-green-500 animate-[music-bar_1s_ease-in-out_infinite_0.4s] h-full"></div>
+                  </div>
+                </div>
+              </div>
+           </div>
+           
+           {/* Overlay UI Controls */}
+           <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-4 bg-black/80 backdrop-blur-xl px-6 py-3 rounded-full border border-white/10 shadow-2xl z-20">
+              <button className="p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"><Mic className="w-5 h-5" /></button>
+              <button className="p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"><VideoIcon className="w-5 h-5" /></button>
+              <button className="p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"><MessageSquare className="w-5 h-5" /></button>
+              <button className="p-3 rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors"><Phone className="w-5 h-5 rotate-[135deg]" /></button>
            </div>
         </div>
       </div>
@@ -332,7 +333,7 @@ export default function Home() {
   return (
     <div className="bg-black min-h-[100dvh] text-white overflow-x-hidden relative">
       {/* Hero 3D Background Layer */}
-      <div className="fixed inset-0 z-0 grayscale opacity-80 pointer-events-none lg:pointer-events-auto">
+      <div className="fixed inset-0 z-0 grayscale opacity-80 pointer-events-none">
         {/* Mobile: Cube Scene */}
         <div className="lg:hidden w-full h-full">
            <Spline 
