@@ -347,10 +347,22 @@ export default function Home() {
     <div className="bg-black min-h-screen text-white overflow-x-hidden relative">
       {/* Hero 3D Background Layer */}
       <div className="fixed inset-0 z-0 grayscale opacity-80 pointer-events-none lg:pointer-events-auto">
-        <Spline 
-          scene="https://prod.spline.design/dnN6ZvuJBbyN2Va1/scene.splinecode"
-          className="w-full h-full lg:translate-x-1/4 scale-75 lg:scale-100"
-        />
+        {/* Mobile: Cube Scene */}
+        <div className="lg:hidden w-full h-full">
+           <Spline 
+             scene="https://prod.spline.design/hd0VqQkFQpvwQJXy/scene.splinecode"
+             className="w-full h-full scale-125"
+           />
+        </div>
+        
+        {/* Desktop: Robot Scene (Original) */}
+        <div className="hidden lg:block w-full h-full">
+           <Spline 
+             scene="https://prod.spline.design/dnN6ZvuJBbyN2Va1/scene.splinecode"
+             className="w-full h-full translate-x-1/4"
+           />
+        </div>
+
         {/* Overlay gradient to ensure text readability */}
         <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-transparent pointer-events-none" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black pointer-events-none" />

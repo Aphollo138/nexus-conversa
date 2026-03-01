@@ -33,6 +33,7 @@ export default function Dashboard() {
   const [activeView, setActiveView] = useState('home'); // 'home' | 'global' | 'private' | 'friends' | 'tickets' | 'reviews'
   const [privateChatTarget, setPrivateChatTarget] = useState<UserProfile | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Mobile sidebar state
+  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
   
   // Call State
   const [activeCall, setActiveCall] = useState<{
@@ -207,13 +208,27 @@ export default function Dashboard() {
           }
         } catch (error) {
           console.error("Error fetching profile:", error);
+        } finally {
+          setIsLoadingAuth(false);
         }
       } else {
         navigate('/');
+        setIsLoadingAuth(false);
       }
     });
     return () => unsubscribe();
   }, [navigate]);
+
+  if (isLoadingAuth) {
+    return (
+      <div className="bg-black h-dvh w-full flex items-center justify-center text-white">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-white/10 border-t-white rounded-full animate-spin" />
+          <p className="text-zinc-500 text-sm tracking-widest uppercase animate-pulse">Carregando Nexus...</p>
+        </div>
+      </div>
+    );
+  }
 
   const getInitials = (name: string) => {
     return name ? name.slice(0, 2).toUpperCase() : 'US';

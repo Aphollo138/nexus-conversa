@@ -30,7 +30,7 @@ export default function Login() {
       {/* Mobile Background 3D - Cube */}
       <div className="absolute inset-0 z-0 md:hidden opacity-60 pointer-events-none">
         <Spline 
-          scene="https://prod.spline.design/dnN6ZvuJBbyN2Va1/scene.splinecode" 
+          scene="https://prod.spline.design/hd0VqQkFQpvwQJXy/scene.splinecode" 
           className="w-full h-full scale-125"
         />
         <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
