@@ -155,19 +155,6 @@ function Hero() {
           </div>
         </motion.div>
 
-        {/* Robot Mascot */}
-        <div className="flex justify-center mt-16 md:mt-24 relative">
-          {/* Efeito de luz atrás do robô */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-indigo-500/30 blur-[80px] rounded-full"></div>
-          
-          {/* O Robô */}
-          <img 
-            src="https://cdn-icons-png.flaticon.com/512/8133/8133391.png" 
-            alt="Mascote Robô" 
-            className="relative w-64 h-64 md:w-80 md:h-80 object-contain animate-[bounce_3s_ease-in-out_infinite] drop-shadow-[0_0_30px_rgba(79,70,229,0.3)] z-10"
-          />
-        </div>
-
         {/* System Status */}
         <div className="mt-16 flex items-center justify-center gap-8 text-gray-500 text-xs font-mono tracking-widest uppercase">
           <div className="flex items-center gap-2">
