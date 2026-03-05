@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Download, X, Share } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
 
 export default function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isIOS, setIsIOS] = useState(false);
   const [showIOSPrompt, setShowIOSPrompt] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     // Check if app is already installed/standalone
@@ -46,6 +48,9 @@ export default function InstallPrompt() {
   };
 
   if (isStandalone) return null;
+
+  // Don't show on dashboard
+  if (location.pathname.includes('/dashboard')) return null;
 
   // Don't show anything if not iOS and no install prompt available yet
   if (!isIOS && !deferredPrompt) return null;
