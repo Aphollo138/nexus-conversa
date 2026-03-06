@@ -56,6 +56,7 @@ export default function VoiceMatch({ userProfile }: VoiceMatchProps) {
   const unsubscribeMatchRef = useRef<(() => void) | null>(null);
   const unsubscribeCallRef = useRef<(() => void) | null>(null);
   const unsubscribeCallStatusRef = useRef<(() => void) | null>(null);
+  const unsubscribeCandidatesRef = useRef<(() => void) | null>(null);
 
   // --- MATCHMAKING LOGIC ---
 
@@ -192,117 +193,146 @@ export default function VoiceMatch({ userProfile }: VoiceMatchProps) {
   const initializeCall = async (currentCallId: string, isCaller: boolean) => {
     setAmICaller(isCaller);
     try {
-      pc.current = new RTCPeerConnection(servers);
+      const pcInstance = new RTCPeerConnection(servers);
+      pc.current = pcInstance;
 
-      // Get Local Stream
+      // 1. Setup Local Stream
       const stream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
       localStream.current = stream;
       stream.getTracks().forEach((track) => {
-        pc.current?.addTrack(track, stream);
+        pcInstance.addTrack(track, stream);
       });
 
-      // Handle Remote Stream
-      pc.current.ontrack = (event) => {
-        event.streams[0].getTracks().forEach((track) => {
-          if (remoteStream.current) {
-            remoteStream.current.addTrack(track);
-          } else {
-            remoteStream.current = new MediaStream([track]);
-          }
-        });
-        if (remoteAudioRef.current) {
-          remoteAudioRef.current.srcObject = remoteStream.current;
+      // 2. Setup Remote Stream (ontrack)
+      pcInstance.ontrack = (event) => {
+        if (event.streams && event.streams[0]) {
+            if (remoteAudioRef.current) {
+                remoteAudioRef.current.srcObject = event.streams[0];
+            }
+            setCallStatus('connected');
         }
-        setCallStatus('connected');
       };
 
-      // Signaling
+      // Firestore Refs
       const callDocRef = doc(db, 'calls', currentCallId);
-      const offerCandidates = collection(callDocRef, 'offerCandidates');
-      const answerCandidates = collection(callDocRef, 'answerCandidates');
+      const callerCandidatesCollection = collection(callDocRef, 'callerCandidates');
+      const calleeCandidatesCollection = collection(callDocRef, 'calleeCandidates');
 
-      // Common Snapshot Listener for Status and Mute
-      unsubscribeCallStatusRef.current = onSnapshot(callDocRef, (snapshot) => {
-        const data = snapshot.data();
-        if (data) {
-             if (data.status === 'ended') {
-                 cleanupCall();
-                 // Only alert if we are not the one who ended it (optional, but simple alert is fine)
-                 // To avoid double alert if we ended it, we could check matchState, but cleanupCall resets it.
-                 // Let's just alert.
-                 // alert('A chamada foi encerrada.'); 
-                 return;
-             }
-             // Sync Mute
-             if (isCaller) {
-                 setPartnerMuted(data.calleeMuted || false);
-             } else {
-                 setPartnerMuted(data.callerMuted || false);
-             }
-             
-             // Handle Answer for Caller
-             if (isCaller && !pc.current?.currentRemoteDescription && data.answer) {
-                const answerDescription = new RTCSessionDescription(data.answer);
-                pc.current.setRemoteDescription(answerDescription);
-             }
-        }
-      });
-
+      // 3. ICE Candidate Logic
       if (isCaller) {
-        // Caller Logic
-        pc.current.onicecandidate = (event) => {
-          if (event.candidate) addDoc(offerCandidates, event.candidate.toJSON());
+        // Caller: Save to callerCandidates
+        pcInstance.onicecandidate = (event) => {
+           if (event.candidate) {
+               addDoc(callerCandidatesCollection, event.candidate.toJSON());
+           }
         };
 
-        const offerDescription = await pc.current.createOffer();
-        await pc.current.setLocalDescription(offerDescription);
-        
-        const offer = { sdp: offerDescription.sdp, type: offerDescription.type, callerMuted: false, calleeMuted: false };
-        await updateDoc(callDocRef, offer);
+        // Create Offer
+        const offerDescription = await pcInstance.createOffer();
+        await pcInstance.setLocalDescription(offerDescription);
 
-        onSnapshot(answerCandidates, (snapshot) => {
-          snapshot.docChanges().forEach((change) => {
-            if (change.type === 'added') {
-              const candidate = new RTCIceCandidate(change.doc.data());
-              pc.current?.addIceCandidate(candidate);
+        const offer = {
+            sdp: offerDescription.sdp,
+            type: offerDescription.type,
+            callerMuted: false,
+            calleeMuted: false
+        };
+        await updateDoc(callDocRef, { offer });
+
+        // Listen for Answer
+        unsubscribeCallStatusRef.current = onSnapshot(callDocRef, (snapshot) => {
+            const data = snapshot.data();
+            if (!pc.current || !data) return;
+
+            // Handle Answer
+            if (!pc.current.currentRemoteDescription && data.answer) {
+                const answerDescription = new RTCSessionDescription(data.answer);
+                pc.current.setRemoteDescription(answerDescription);
             }
-          });
+            
+            // Handle Mute/Status
+            if (data.status === 'ended') {
+                 cleanupCall();
+                 return;
+            }
+            if (isCaller) {
+                 setPartnerMuted(data.calleeMuted || false);
+            } else {
+                 setPartnerMuted(data.callerMuted || false);
+            }
+        });
+
+        // Listen for Callee Candidates
+        unsubscribeCandidatesRef.current = onSnapshot(calleeCandidatesCollection, (snapshot) => {
+            snapshot.docChanges().forEach((change) => {
+                if (change.type === 'added') {
+                    const candidate = new RTCIceCandidate(change.doc.data());
+                    if (pc.current?.remoteDescription) {
+                        pc.current.addIceCandidate(candidate);
+                    }
+                }
+            });
         });
 
       } else {
-        // Callee Logic
-        pc.current.onicecandidate = (event) => {
-          if (event.candidate) addDoc(answerCandidates, event.candidate.toJSON());
+        // Callee: Save to calleeCandidates
+        pcInstance.onicecandidate = (event) => {
+           if (event.candidate) {
+               addDoc(calleeCandidatesCollection, event.candidate.toJSON());
+           }
         };
 
+        // Get Offer
         const callDoc = await getDoc(callDocRef);
         const callData = callDoc.data();
 
         if (callData?.offer) {
-          await pc.current.setRemoteDescription(new RTCSessionDescription(callData.offer));
-          const answerDescription = await pc.current.createAnswer();
-          await pc.current.setLocalDescription(answerDescription);
-          
-          const answer = { sdp: answerDescription.sdp, type: answerDescription.type };
-          await updateDoc(callDocRef, { answer });
+            await pcInstance.setRemoteDescription(new RTCSessionDescription(callData.offer));
+            
+            const answerDescription = await pcInstance.createAnswer();
+            await pcInstance.setLocalDescription(answerDescription);
+
+            const answer = {
+                sdp: answerDescription.sdp,
+                type: answerDescription.type
+            };
+            await updateDoc(callDocRef, { answer });
         }
 
-        onSnapshot(offerCandidates, (snapshot) => {
-          snapshot.docChanges().forEach((change) => {
-            if (change.type === 'added') {
-              const candidate = new RTCIceCandidate(change.doc.data());
-              pc.current?.addIceCandidate(candidate);
+        // Listen for Caller Candidates
+        unsubscribeCandidatesRef.current = onSnapshot(callerCandidatesCollection, (snapshot) => {
+            snapshot.docChanges().forEach((change) => {
+                if (change.type === 'added') {
+                    const candidate = new RTCIceCandidate(change.doc.data());
+                    if (pc.current?.remoteDescription) {
+                        pc.current.addIceCandidate(candidate);
+                    }
+                }
+            });
+        });
+
+        // Listen for Status/Mute
+         unsubscribeCallStatusRef.current = onSnapshot(callDocRef, (snapshot) => {
+            const data = snapshot.data();
+            if (data) {
+                if (data.status === 'ended') {
+                     cleanupCall();
+                     return;
+                }
+                if (isCaller) {
+                     setPartnerMuted(data.calleeMuted || false);
+                } else {
+                     setPartnerMuted(data.callerMuted || false);
+                }
             }
-          });
         });
       }
-
+      
       // Chat Listener
       const messagesRef = collection(db, 'calls', currentCallId, 'messages');
-      const q = query(messagesRef); // Order by createdAt if needed
+      const q = query(messagesRef); 
       unsubscribeCallRef.current = onSnapshot(q, (snapshot) => {
         const msgs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        // Sort manually if needed or use orderBy in query
         msgs.sort((a: any, b: any) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0));
         setMessages(msgs);
       });
@@ -321,6 +351,7 @@ export default function VoiceMatch({ userProfile }: VoiceMatchProps) {
     }
     if (unsubscribeCallRef.current) unsubscribeCallRef.current();
     if (unsubscribeCallStatusRef.current) unsubscribeCallStatusRef.current();
+    if (unsubscribeCandidatesRef.current) unsubscribeCandidatesRef.current();
     if (unsubscribeMatchRef.current) unsubscribeMatchRef.current();
     
     setMatchState('setup');

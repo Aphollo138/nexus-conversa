@@ -33,6 +33,14 @@ service cloud.firestore {
         allow read: if isAuthenticated();
         allow create: if isAuthenticated() && request.resource.data.senderId == request.auth.uid;
       }
+
+      // ICE Candidates Rules
+      match /callerCandidates/{candidateId} {
+        allow read, create: if isAuthenticated();
+      }
+      match /calleeCandidates/{candidateId} {
+        allow read, create: if isAuthenticated();
+      }
     }
 
     // Existing rules (assuming they might exist or need to be preserved, but for now I'm overwriting with the new requirements + generic user rules if needed)

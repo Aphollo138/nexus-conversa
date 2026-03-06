@@ -41,6 +41,17 @@
         "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp of creation" }
       },
       "required": ["senderId", "text", "createdAt"]
+    },
+    "ICECandidate": {
+      "title": "ICE Candidate",
+      "description": "WebRTC ICE Candidate",
+      "type": "object",
+      "properties": {
+        "candidate": { "type": "string", "description": "Candidate string" },
+        "sdpMid": { "type": "string", "description": "SDP Media ID" },
+        "sdpMLineIndex": { "type": "number", "description": "SDP Media Line Index" },
+        "usernameFragment": { "type": "string", "description": "Username Fragment" }
+      }
     }
   },
   "firestore": {
@@ -55,6 +66,14 @@
     "calls/{callId}/messages/{messageId}": {
       "schema": "CallMessage",
       "description": "Chat messages for a specific call."
+    },
+    "calls/{callId}/callerCandidates/{candidateId}": {
+      "schema": "ICECandidate",
+      "description": "ICE Candidates from the caller."
+    },
+    "calls/{callId}/calleeCandidates/{candidateId}": {
+      "schema": "ICECandidate",
+      "description": "ICE Candidates from the callee."
     }
   }
 }
