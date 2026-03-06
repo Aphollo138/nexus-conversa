@@ -1,0 +1,57 @@
+{
+  "entities": {
+    "MatchRequest": {
+      "title": "Match Request",
+      "description": "A request from a user to find a voice match.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "User ID" },
+        "username": { "type": "string", "description": "Username" },
+        "avatarUrl": { "type": "string", "description": "User Avatar URL" },
+        "myGender": { "type": "string", "enum": ["male", "female", "other"], "description": "User's gender" },
+        "preferredGender": { "type": "string", "enum": ["male", "female", "any"], "description": "Preferred gender to match with" },
+        "status": { "type": "string", "enum": ["waiting", "matched"], "description": "Status of the request" },
+        "callId": { "type": "string", "description": "ID of the call room (if matched)" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp of creation" }
+      },
+      "required": ["uid", "myGender", "preferredGender", "status", "createdAt"]
+    },
+    "CallRoom": {
+      "title": "Call Room",
+      "description": "A WebRTC call room for two users.",
+      "type": "object",
+      "properties": {
+        "participants": { "type": "array", "items": { "type": "string" }, "description": "Array of user UIDs" },
+        "offer": { "type": "object", "description": "WebRTC Offer" },
+        "answer": { "type": "object", "description": "WebRTC Answer" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp of creation" }
+      }
+    },
+    "CallMessage": {
+      "title": "Call Message",
+      "description": "A text message within a call room.",
+      "type": "object",
+      "properties": {
+        "senderId": { "type": "string", "description": "User ID of the sender" },
+        "senderName": { "type": "string", "description": "Username of the sender" },
+        "text": { "type": "string", "description": "Message content" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp of creation" }
+      },
+      "required": ["senderId", "text", "createdAt"]
+    }
+  },
+  "firestore": {
+    "match_queue/{requestId}": {
+      "schema": "MatchRequest",
+      "description": "Queue for users waiting for a match."
+    },
+    "calls/{callId}": {
+      "schema": "CallRoom",
+      "description": "Active call rooms."
+    },
+    "calls/{callId}/messages/{messageId}": {
+      "schema": "CallMessage",
+      "description": "Chat messages for a specific call."
+    }
+  }
+}

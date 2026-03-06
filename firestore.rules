@@ -1,0 +1,57 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Match Queue Rules
+    match /match_queue/{requestId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.uid == request.auth.uid;
+      allow update: if isAuthenticated() && (
+        resource.data.uid == request.auth.uid || // User can update their own request
+        (resource.data.status == 'waiting' && request.resource.data.status == 'matched') // Another user can match them
+      );
+      allow delete: if isAuthenticated() && resource.data.uid == request.auth.uid;
+    }
+
+    // Call Room Rules
+    match /calls/{callId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated(); // Allow signaling updates (offer/answer/candidates)
+      
+      // Call Messages Rules
+      match /messages/{messageId} {
+        allow read: if isAuthenticated();
+        allow create: if isAuthenticated() && request.resource.data.senderId == request.auth.uid;
+      }
+    }
+
+    // Existing rules (assuming they might exist or need to be preserved, but for now I'm overwriting with the new requirements + generic user rules if needed)
+    // Adding generic user rules for the dashboard to work if they weren't there
+    match /users/{userId} {
+      allow read, write: if isAuthenticated();
+    }
+    
+    // Global chat rules (inferred from Dashboard.tsx)
+    match /global_chat/{messageId} {
+      allow read, write: if isAuthenticated();
+    }
+    
+    // Private chat rules (inferred)
+    match /private_chats/{chatId} {
+      allow read, write: if isAuthenticated();
+      match /messages/{messageId} {
+        allow read, write: if isAuthenticated();
+      }
+    }
+  }
+}

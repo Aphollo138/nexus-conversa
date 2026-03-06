@@ -13,6 +13,7 @@ import SettingsModal from '../components/SettingsModal';
 import PrivateChat from '../components/PrivateChat';
 import Reviews from '../components/Reviews';
 import VoiceCall from '../components/VoiceCall';
+import VoiceMatch from '../components/VoiceMatch';
 import WelcomeModal from '../components/WelcomeModal';
 
 interface UserProfile {
@@ -30,7 +31,7 @@ export default function Dashboard() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [activeView, setActiveView] = useState('home'); // 'home' | 'global' | 'private' | 'friends' | 'tickets' | 'reviews'
+  const [activeView, setActiveView] = useState('home'); // 'home' | 'global' | 'private' | 'friends' | 'tickets' | 'reviews' | 'voice-match'
   const [privateChatTarget, setPrivateChatTarget] = useState<UserProfile | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Mobile sidebar state
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
@@ -198,6 +199,8 @@ export default function Dashboard() {
       setActiveView('tickets');
     } else if (tab === 'reviews') {
       setActiveView('reviews');
+    } else if (tab === 'voice-match') {
+      setActiveView('voice-match');
     } else {
       setActiveView('home');
     }
@@ -363,6 +366,19 @@ export default function Dashboard() {
           <motion.button 
             whileTap={{ scale: 0.95 }}
             transition={{ type: "spring", stiffness: 400, damping: 15 }}
+            onClick={() => handleTabChange('voice-match')}
+            className={`w-full rounded-full px-6 py-4 flex items-center gap-4 transition-all duration-300 group relative ${activeTab === 'voice-match' ? 'bg-white/10 shadow-[0_0_20px_rgba(255,255,255,0.05)]' : 'hover:bg-white/5'}`}
+          >
+            <Phone className={`w-6 h-6 transition-colors duration-300 ${activeTab === 'voice-match' ? 'text-pink-500' : 'text-zinc-500 group-hover:text-pink-500'}`} />
+            <span className={`text-base font-medium transition-colors duration-300 ${activeTab === 'voice-match' ? 'text-white' : 'text-zinc-400 group-hover:text-white'}`}>Call</span>
+            {activeTab === 'voice-match' && (
+              <motion.div layoutId="active-pill" className="absolute right-4 w-1.5 h-1.5 rounded-full bg-pink-500 shadow-[0_0_10px_rgba(236,72,153,0.8)]" />
+            )}
+          </motion.button>
+
+          <motion.button 
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 400, damping: 15 }}
             onClick={() => handleTabChange('tickets')}
             className={`w-full rounded-full px-6 py-4 flex items-center gap-4 transition-all duration-300 group relative ${activeTab === 'tickets' ? 'bg-white/10 shadow-[0_0_20px_rgba(255,255,255,0.05)]' : 'hover:bg-white/5'}`}
           >
@@ -513,6 +529,8 @@ export default function Dashboard() {
           <Tickets onStartCall={handleStartCall} />
         ) : activeView === 'reviews' ? (
           <Reviews />
+        ) : activeView === 'voice-match' ? (
+          <VoiceMatch userProfile={userProfile} />
         ) : (
           /* Empty State / Home View */
           <div className="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none">
