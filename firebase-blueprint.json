@@ -24,6 +24,9 @@
         "participants": { "type": "array", "items": { "type": "string" }, "description": "Array of user UIDs" },
         "offer": { "type": "object", "description": "WebRTC Offer" },
         "answer": { "type": "object", "description": "WebRTC Answer" },
+        "status": { "type": "string", "enum": ["active", "ended"], "description": "Status of the call" },
+        "callerMuted": { "type": "boolean", "description": "Is the caller muted?" },
+        "calleeMuted": { "type": "boolean", "description": "Is the callee muted?" },
         "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp of creation" }
       }
     },

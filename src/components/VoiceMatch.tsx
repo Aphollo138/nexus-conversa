@@ -45,6 +45,8 @@ export default function VoiceMatch({ userProfile }: VoiceMatchProps) {
   const [callStatus, setCallStatus] = useState<'connecting' | 'connected' | 'ended'>('connecting');
   const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
+  const [amICaller, setAmICaller] = useState(false);
+  const [partnerMuted, setPartnerMuted] = useState(false);
 
   // Refs
   const pc = useRef<RTCPeerConnection | null>(null);
@@ -53,6 +55,7 @@ export default function VoiceMatch({ userProfile }: VoiceMatchProps) {
   const remoteAudioRef = useRef<HTMLAudioElement>(null);
   const unsubscribeMatchRef = useRef<(() => void) | null>(null);
   const unsubscribeCallRef = useRef<(() => void) | null>(null);
+  const unsubscribeCallStatusRef = useRef<(() => void) | null>(null);
 
   // --- MATCHMAKING LOGIC ---
 
@@ -187,6 +190,7 @@ export default function VoiceMatch({ userProfile }: VoiceMatchProps) {
   // --- WEBRTC LOGIC ---
 
   const initializeCall = async (currentCallId: string, isCaller: boolean) => {
+    setAmICaller(isCaller);
     try {
       pc.current = new RTCPeerConnection(servers);
 
@@ -217,6 +221,33 @@ export default function VoiceMatch({ userProfile }: VoiceMatchProps) {
       const offerCandidates = collection(callDocRef, 'offerCandidates');
       const answerCandidates = collection(callDocRef, 'answerCandidates');
 
+      // Common Snapshot Listener for Status and Mute
+      unsubscribeCallStatusRef.current = onSnapshot(callDocRef, (snapshot) => {
+        const data = snapshot.data();
+        if (data) {
+             if (data.status === 'ended') {
+                 cleanupCall();
+                 // Only alert if we are not the one who ended it (optional, but simple alert is fine)
+                 // To avoid double alert if we ended it, we could check matchState, but cleanupCall resets it.
+                 // Let's just alert.
+                 // alert('A chamada foi encerrada.'); 
+                 return;
+             }
+             // Sync Mute
+             if (isCaller) {
+                 setPartnerMuted(data.calleeMuted || false);
+             } else {
+                 setPartnerMuted(data.callerMuted || false);
+             }
+             
+             // Handle Answer for Caller
+             if (isCaller && !pc.current?.currentRemoteDescription && data.answer) {
+                const answerDescription = new RTCSessionDescription(data.answer);
+                pc.current.setRemoteDescription(answerDescription);
+             }
+        }
+      });
+
       if (isCaller) {
         // Caller Logic
         pc.current.onicecandidate = (event) => {
@@ -226,16 +257,8 @@ export default function VoiceMatch({ userProfile }: VoiceMatchProps) {
         const offerDescription = await pc.current.createOffer();
         await pc.current.setLocalDescription(offerDescription);
         
-        const offer = { sdp: offerDescription.sdp, type: offerDescription.type };
-        await updateDoc(callDocRef, { offer });
-
-        onSnapshot(callDocRef, (snapshot) => {
-          const data = snapshot.data();
-          if (!pc.current?.currentRemoteDescription && data?.answer) {
-            const answerDescription = new RTCSessionDescription(data.answer);
-            pc.current.setRemoteDescription(answerDescription);
-          }
-        });
+        const offer = { sdp: offerDescription.sdp, type: offerDescription.type, callerMuted: false, calleeMuted: false };
+        await updateDoc(callDocRef, offer);
 
         onSnapshot(answerCandidates, (snapshot) => {
           snapshot.docChanges().forEach((change) => {
@@ -289,7 +312,7 @@ export default function VoiceMatch({ userProfile }: VoiceMatchProps) {
     }
   };
 
-  const endCall = () => {
+  const cleanupCall = () => {
     if (localStream.current) {
       localStream.current.getTracks().forEach(track => track.stop());
     }
@@ -297,14 +320,27 @@ export default function VoiceMatch({ userProfile }: VoiceMatchProps) {
       pc.current.close();
     }
     if (unsubscribeCallRef.current) unsubscribeCallRef.current();
+    if (unsubscribeCallStatusRef.current) unsubscribeCallStatusRef.current();
     if (unsubscribeMatchRef.current) unsubscribeMatchRef.current();
-    
-    // Cleanup Firestore if needed (optional)
     
     setMatchState('setup');
     setCallId(null);
     setPartnerProfile(null);
     setMessages([]);
+    setAmICaller(false);
+    setPartnerMuted(false);
+    setIsMuted(false);
+  };
+
+  const endCall = async () => {
+    if (callId) {
+        try {
+            await updateDoc(doc(db, 'calls', callId), { status: 'ended' });
+        } catch (e) {
+            console.error("Error ending call:", e);
+        }
+    }
+    cleanupCall();
   };
 
   const toggleMute = () => {
@@ -312,7 +348,14 @@ export default function VoiceMatch({ userProfile }: VoiceMatchProps) {
       localStream.current.getAudioTracks().forEach((track) => {
         track.enabled = !track.enabled;
       });
-      setIsMuted(!isMuted);
+      const newMutedState = !isMuted;
+      setIsMuted(newMutedState);
+      
+      if (callId) {
+          updateDoc(doc(db, 'calls', callId), {
+              [amICaller ? 'callerMuted' : 'calleeMuted']: newMutedState
+          });
+      }
     }
   };
 
@@ -431,11 +474,11 @@ export default function VoiceMatch({ userProfile }: VoiceMatchProps) {
 
       {/* MATCHED STATE */}
       {matchState === 'matched' && (
-        <div className="flex-1 flex h-full w-full p-4 gap-4 overflow-hidden">
+        <div className="flex-1 flex flex-col md:flex-row h-full w-full p-4 gap-4 overflow-hidden">
           <audio ref={remoteAudioRef} autoPlay playsInline className="hidden" />
           
           {/* Left Area: Voice Call */}
-          <div className="flex-1 bg-[#111214] border border-white/5 rounded-2xl flex flex-col relative overflow-hidden">
+          <div className="flex-1 min-h-[50vh] md:min-h-0 bg-[#111214] border border-white/5 rounded-2xl flex flex-col relative overflow-hidden">
             {/* Header */}
             <div className="absolute top-6 left-0 right-0 text-center z-10">
                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/40 border border-white/5 backdrop-blur-md">
@@ -481,6 +524,11 @@ export default function VoiceMatch({ userProfile }: VoiceMatchProps) {
                        <div className="w-full h-full flex items-center justify-center"><User className="w-12 h-12 text-zinc-600" /></div>
                      )}
                    </div>
+                   {partnerMuted && (
+                     <div className="absolute bottom-0 right-0 bg-red-500 p-2 rounded-full border-4 border-[#111214]">
+                       <MicOff className="w-4 h-4 text-white" />
+                     </div>
+                   )}
                 </div>
                 <span className="font-bold text-zinc-300">{partnerProfile?.username || 'Parceiro'}</span>
               </div>
@@ -506,7 +554,7 @@ export default function VoiceMatch({ userProfile }: VoiceMatchProps) {
           </div>
 
           {/* Right Area: Mini Chat */}
-          <div className="w-80 bg-[#111214] border border-white/5 rounded-2xl flex flex-col overflow-hidden hidden md:flex">
+          <div className="w-full md:w-80 h-[50vh] md:h-full bg-[#111214] border-t md:border-t-0 md:border-l border-white/5 rounded-2xl md:rounded-l-none md:rounded-r-2xl flex flex-col overflow-hidden">
             <div className="p-4 border-b border-white/5 bg-white/5">
               <h3 className="font-bold text-sm text-white">Chat</h3>
             </div>
