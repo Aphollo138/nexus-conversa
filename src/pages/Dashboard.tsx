@@ -146,7 +146,7 @@ export default function Dashboard() {
                username: user.displayName || 'User', 
                avatarUrl: user.photoURL || '',
                location: 'Unknown',
-               about: 'Membro do Nexus desde 2024.',
+               about: 'Membro do Papos desde 2024.',
                bannerPosition: 50
              });
           }
@@ -168,7 +168,7 @@ export default function Dashboard() {
       <div className="bg-black h-[100dvh] w-full flex items-center justify-center text-white">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-white/10 border-t-white rounded-full animate-spin" />
-          <p className="text-zinc-500 text-sm tracking-widest uppercase animate-pulse">Carregando Nexus...</p>
+          <p className="text-zinc-500 text-sm tracking-widest uppercase animate-pulse">Carregando Papos...</p>
         </div>
       </div>
     );
@@ -314,12 +314,12 @@ export default function Dashboard() {
         <div className="px-6 mb-10 flex items-center gap-3 pl-12 md:pl-6">
           <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center shadow-[0_0_15px_rgba(255,255,255,0.3)] overflow-hidden">
              <img 
-               src="https://i.postimg.cc/Nyv42tvK/Chat-GPT-Image-1-de-mar-de-2026-15-17-54.png" 
-               alt="Nexus Logo" 
+               src="https://i.postimg.cc/jDfHpdjL/image.png" 
+               alt="Papos Logo" 
                className="w-full h-full object-cover"
              />
           </div>
-          <span className="font-display font-bold text-xl tracking-tight">Nexus</span>
+          <span className="font-display font-bold text-xl tracking-tight">Papos</span>
         </div>
 
         {/* Navigation Icons */}
@@ -485,7 +485,7 @@ export default function Dashboard() {
                   <div className="w-full space-y-3">
                     <div className="space-y-1">
                       <span className="text-xs text-zinc-400 uppercase font-bold tracking-wider block">Sobre Mim</span>
-                      <p className="text-sm text-zinc-300 leading-relaxed">{userProfile?.about || 'Membro do Nexus desde 2024.'}</p>
+                      <p className="text-sm text-zinc-300 leading-relaxed">{userProfile?.about || 'Membro do Papos desde 2024.'}</p>
                     </div>
 
                     <button 

@@ -33,18 +33,18 @@ function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex-shrink-0 flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
+          <div className="flex-shrink-0 flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
             <img 
-              src="https://i.postimg.cc/Nyv42tvK/Chat-GPT-Image-1-de-mar-de-2026-15-17-54.png" 
-              alt="Nexus Logo" 
-              className="w-8 h-8 object-contain"
+              src="https://i.postimg.cc/vZq064FL/Chat-GPT-Image-14-de-mar-de-2026-10-15-19-removebg-preview.png" 
+              alt="Papos Logo" 
+              className="w-16 h-16 object-contain"
             />
-            <span className="font-display font-bold text-2xl tracking-widest text-white">NEXUS</span>
+            <span className="font-display font-bold text-2xl tracking-widest text-white">PAPOS</span>
           </div>
 
           {/* Desktop Menu */}
           <div className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-12">
+            <div className="flex items-center gap-16">
               <button onClick={() => scrollToSection('home')} className="text-white/70 hover:text-white transition-colors duration-300 text-sm font-medium tracking-wide uppercase">Home</button>
               <button onClick={() => scrollToSection('features')} className="text-white/70 hover:text-white transition-colors duration-300 text-sm font-medium tracking-wide uppercase">Funcionalidades</button>
               <button onClick={() => scrollToSection('demo')} className="text-white/70 hover:text-white transition-colors duration-300 text-sm font-medium tracking-wide uppercase">Demo</button>
@@ -229,7 +229,7 @@ function Features() {
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, x: -50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
+                  whileInView={{ x: 0, opacity: 1 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: index * 0.2 }}
                   className={`group p-6 sm:p-8 rounded-2xl border transition-all duration-500 ${isMobile ? 'bg-white/5 border-white/10 hover:bg-white hover:border-white' : 'bg-black/50 backdrop-blur-sm border-white/10 hover:border-white/30 hover:shadow-[0_0_30px_rgba(255,255,255,0.05)]'}`}

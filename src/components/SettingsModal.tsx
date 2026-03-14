@@ -355,7 +355,7 @@ export default function SettingsModal({ isOpen, onClose, currentUserProfile, onU
                       <div className="space-y-2 mb-4">
                         <h4 className="text-xs font-bold text-zinc-300 uppercase">Sobre Mim</h4>
                         <p className="text-sm text-zinc-400 leading-relaxed">
-                          {about || 'Membro do Nexus desde 2024.'}
+                          {about || 'Membro do Papos desde 2024.'}
                         </p>
                       </div>
                    </div>

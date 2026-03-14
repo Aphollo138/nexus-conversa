@@ -1,6 +1,6 @@
 {
-  "name": "Nexus",
-  "short_name": "Nexus",
+  "name": "Papos",
+  "short_name": "Papos",
   "description": "A nova era da conversa digital.",
   "start_url": "/",
   "display": "standalone",
@@ -9,12 +9,12 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "https://i.postimg.cc/Nyv42tvK/Chat-GPT-Image-1-de-mar-de-2026-15-17-54.png",
+      "src": "https://i.postimg.cc/jDfHpdjL/image.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "https://i.postimg.cc/Nyv42tvK/Chat-GPT-Image-1-de-mar-de-2026-15-17-54.png",
+      "src": "https://i.postimg.cc/jDfHpdjL/image.png",
       "sizes": "512x512",
       "type": "image/png"
     }
