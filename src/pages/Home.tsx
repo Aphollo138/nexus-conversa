@@ -33,13 +33,15 @@ function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex-shrink-0 flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
-            <img 
-              src="https://i.postimg.cc/vZq064FL/Chat-GPT-Image-14-de-mar-de-2026-10-15-19-removebg-preview.png" 
-              alt="Papos Logo" 
-              className="w-16 h-16 object-contain"
-            />
-            <span className="font-display font-bold text-2xl tracking-widest text-white">PAPOS</span>
+          <div className="flex-shrink-0 flex items-center gap-4 cursor-pointer" onClick={() => navigate('/')}>
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white flex items-center justify-center shadow-[0_0_20px_rgba(255,255,255,0.3)] overflow-hidden p-1.5">
+              <img 
+                src="https://i.postimg.cc/vZq064FL/Chat-GPT-Image-14-de-mar-de-2026-10-15-19-removebg-preview.png" 
+                alt="Papos Logo" 
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <span className="font-display font-bold text-3xl tracking-widest text-white">PAPOS</span>
           </div>
 
           {/* Desktop Menu */}
