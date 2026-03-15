@@ -9,15 +9,15 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/favicon.svg?v=3",
+      "src": "https://i.postimg.cc/jDfHpdjL/Chat_GPT_Image_14_de_mar_de_2026_10_15_19_removebg_preview.png",
       "sizes": "192x192",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/favicon.svg?v=3",
+      "src": "https://i.postimg.cc/jDfHpdjL/Chat_GPT_Image_14_de_mar_de_2026_10_15_19_removebg_preview.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]

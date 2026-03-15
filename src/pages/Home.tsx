@@ -36,7 +36,7 @@ function Navbar() {
           <div className="flex-shrink-0 flex items-center gap-4 cursor-pointer" onClick={() => navigate('/')}>
             <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white flex items-center justify-center shadow-[0_0_20px_rgba(255,255,255,0.3)] overflow-hidden p-1.5">
               <img 
-                src="https://i.postimg.cc/vZq064FL/Chat-GPT-Image-14-de-mar-de-2026-10-15-19-removebg-preview.png" 
+                src="https://i.postimg.cc/jDfHpdjL/Chat_GPT_Image_14_de_mar_de_2026_10_15_19_removebg_preview.png" 
                 alt="Papos Logo" 
                 className="w-full h-full object-contain"
               />
@@ -360,6 +360,51 @@ export default function Home() {
         <Features />
         <DemoSection />
       </div>
+
+      {/* Footer */}
+      <footer className="relative z-10 bg-black border-t border-white/10 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+            <div className="col-span-1 md:col-span-2">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center overflow-hidden p-1">
+                  <img 
+                    src="https://i.postimg.cc/jDfHpdjL/Chat_GPT_Image_14_de_mar_de_2026_10_15_19_removebg_preview.png" 
+                    alt="Papos Logo" 
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+                <span className="font-display font-bold text-xl tracking-widest text-white">PAPOS</span>
+              </div>
+              <p className="text-zinc-500 text-sm max-w-xs">
+                A nova era da conversa digital. Conectando pessoas através da voz de forma segura e instantânea.
+              </p>
+            </div>
+            
+            <div>
+              <h4 className="text-white font-semibold mb-4 uppercase tracking-wider text-sm">Plataforma</h4>
+              <ul className="space-y-2">
+                <li><a href="/sobre" className="text-zinc-500 hover:text-white transition-colors text-sm">Sobre Nós</a></li>
+                <li><a href="/dicas" className="text-zinc-500 hover:text-white transition-colors text-sm">Dicas e Segurança</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="text-white font-semibold mb-4 uppercase tracking-wider text-sm">Legal</h4>
+              <ul className="space-y-2">
+                <li><a href="/termos" className="text-zinc-500 hover:text-white transition-colors text-sm">Termos de Uso</a></li>
+                <li><a href="/privacidade" className="text-zinc-500 hover:text-white transition-colors text-sm">Política de Privacidade</a></li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+            <p className="text-zinc-600 text-xs text-center md:text-left">
+              &copy; {new Date().getFullYear()} Papo.net.br. Todos os direitos reservados.
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

@@ -8,6 +8,10 @@ import Home from './pages/Home';
 import SignUp from './pages/SignUp';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
+import Termos from './pages/Termos';
+import Privacidade from './pages/Privacidade';
+import Sobre from './pages/Sobre';
+import Dicas from './pages/Dicas';
 import InstallPrompt from './components/InstallPrompt';
 
 export default function App() {
@@ -19,6 +23,10 @@ export default function App() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/termos" element={<Termos />} />
+        <Route path="/privacidade" element={<Privacidade />} />
+        <Route path="/sobre" element={<Sobre />} />
+        <Route path="/dicas" element={<Dicas />} />
       </Routes>
     </Router>
   );

@@ -4,10 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "predev": "node scripts/gen-favicon.cjs",
     "dev": "tsx server.ts",
     "start": "node server.ts",
-    "prebuild": "node scripts/gen-favicon.cjs",
     "build": "vite build",
     "preview": "vite preview",
     "clean": "rm -rf dist",

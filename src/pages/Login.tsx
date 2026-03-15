@@ -57,13 +57,13 @@ export default function Login() {
           className="w-full max-w-sm mx-auto"
         >
           <div className="flex flex-col items-start mb-10">
-            <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center shadow-lg shadow-white/20 mb-6 overflow-hidden">
-              <img 
-                src="https://i.postimg.cc/Nyv42tvK/Chat-GPT-Image-1-de-mar-de-2026-15-17-54.png" 
-                alt="Logo" 
-                className="w-full h-full object-cover"
-              />
-            </div>
+              <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center shadow-lg shadow-white/20 mb-6 overflow-hidden">
+                <img 
+                  src="https://i.postimg.cc/jDfHpdjL/Chat_GPT_Image_14_de_mar_de_2026_10_15_19_removebg_preview.png" 
+                  alt="Logo" 
+                  className="w-full h-full object-contain p-1"
+                />
+              </div>
             <h2 className="font-display text-3xl text-white font-bold tracking-tight">Bem-vindo de volta</h2>
             <p className="text-zinc-400 mt-2 text-sm">Acesse sua conta para continuar.</p>
           </div>
