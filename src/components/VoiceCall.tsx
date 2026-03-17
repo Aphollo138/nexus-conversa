@@ -53,11 +53,18 @@ export default function VoiceCall({ callId, isCaller, targetUser, onEndCall }: V
           throw new Error("Seu navegador não suporta chamadas de áudio ou o acesso ao microfone foi bloqueado. Verifique se está usando HTTPS.");
         }
 
+        let stream: MediaStream;
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+        } catch (err) {
+          console.error("Microphone permission denied:", err);
+          throw new Error("Permissão de microfone negada. Por favor, permita o acesso ao microfone para usar o chat de voz.");
+        }
+
         // 1. Initialize PeerConnection
         pc.current = new RTCPeerConnection(servers);
 
         // 2. Get Local Stream (Audio Only)
-        const stream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
         localStream.current = stream;
         
         // Add tracks to PeerConnection
@@ -86,6 +93,8 @@ export default function VoiceCall({ callId, isCaller, targetUser, onEndCall }: V
         const offerCandidates = collection(callDocRef, 'offerCandidates');
         const answerCandidates = collection(callDocRef, 'answerCandidates');
 
+        const pendingCandidates: RTCIceCandidateInit[] = [];
+
         if (isCaller) {
           // --- CALLER LOGIC ---
           setCallStatus('ringing');
@@ -110,11 +119,14 @@ export default function VoiceCall({ callId, isCaller, targetUser, onEndCall }: V
           await setDoc(callDocRef, { offer, status: 'ringing' }, { merge: true });
 
           // Listen for Answer
-          unsubscribeRef.current = onSnapshot(callDocRef, (snapshot) => {
+          unsubscribeRef.current = onSnapshot(callDocRef, async (snapshot) => {
             const data = snapshot.data();
             if (!pc.current?.currentRemoteDescription && data?.answer) {
               const answerDescription = new RTCSessionDescription(data.answer);
-              pc.current.setRemoteDescription(answerDescription);
+              await pc.current.setRemoteDescription(answerDescription);
+              
+              pendingCandidates.forEach(c => pc.current?.addIceCandidate(new RTCIceCandidate(c)));
+              pendingCandidates.length = 0;
             }
             // Check if call ended remotely
             if (data?.status === 'ended' || data?.status === 'rejected') {
@@ -126,8 +138,12 @@ export default function VoiceCall({ callId, isCaller, targetUser, onEndCall }: V
           onSnapshot(answerCandidates, (snapshot) => {
             snapshot.docChanges().forEach((change) => {
               if (change.type === 'added') {
-                const candidate = new RTCIceCandidate(change.doc.data());
-                pc.current?.addIceCandidate(candidate);
+                const candidate = change.doc.data() as RTCIceCandidateInit;
+                if (pc.current?.remoteDescription) {
+                  pc.current.addIceCandidate(new RTCIceCandidate(candidate));
+                } else {
+                  pendingCandidates.push(candidate);
+                }
               }
             });
           });
@@ -161,14 +177,21 @@ export default function VoiceCall({ callId, isCaller, targetUser, onEndCall }: V
 
              // Save Answer to Firestore
              await updateDoc(callDocRef, { answer, status: 'active' });
+             
+             pendingCandidates.forEach(c => pc.current?.addIceCandidate(new RTCIceCandidate(c)));
+             pendingCandidates.length = 0;
           }
 
           // Listen for Offer Candidates
           onSnapshot(offerCandidates, (snapshot) => {
             snapshot.docChanges().forEach((change) => {
               if (change.type === 'added') {
-                const candidate = new RTCIceCandidate(change.doc.data());
-                pc.current?.addIceCandidate(candidate);
+                const candidate = change.doc.data() as RTCIceCandidateInit;
+                if (pc.current?.remoteDescription) {
+                  pc.current.addIceCandidate(new RTCIceCandidate(candidate));
+                } else {
+                  pendingCandidates.push(candidate);
+                }
               }
             });
           });
@@ -195,9 +218,11 @@ export default function VoiceCall({ callId, isCaller, targetUser, onEndCall }: V
       if (unsubscribeRef.current) unsubscribeRef.current();
       if (localStream.current) {
         localStream.current.getTracks().forEach(track => track.stop());
+        localStream.current = null;
       }
       if (pc.current) {
         pc.current.close();
+        pc.current = null;
       }
     };
   }, [callId, isCaller]); // Run once on mount (or if callId changes)

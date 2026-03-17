@@ -4,6 +4,8 @@ import EmojiPicker, { Theme } from 'emoji-picker-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db, auth } from '../firebaseConfig';
 import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, limit, getDocs, doc, getDoc, where, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { useDocumentTitleNotify } from '../hooks/useDocumentTitleNotify';
+import { notificationService } from '../services/NotificationService';
 
 interface User {
   uid: string;
@@ -43,7 +45,10 @@ export default function PrivateChat({ initialTargetUser, onStartCall }: PrivateC
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useDocumentTitleNotify({ unreadCount });
   
   // Popover State
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -342,11 +347,33 @@ export default function PrivateChat({ initialTargetUser, onStartCall }: PrivateC
       snapshot.forEach((doc) => {
         msgs.push({ id: doc.id, ...doc.data() } as Message);
       });
-      setMessages(msgs);
+      
+      setMessages(prevMsgs => {
+        if (msgs.length > prevMsgs.length) {
+          const lastMsg = msgs[msgs.length - 1];
+          if (lastMsg.senderId !== auth.currentUser?.uid) {
+            notificationService.playMessageSound();
+            if (!document.hasFocus()) {
+              setUnreadCount(prev => prev + 1);
+            }
+          }
+        }
+        return msgs;
+      });
     });
 
     return () => unsubscribe();
   }, [activeConversationId]);
+
+  // Reset unread count when tab is focused
+  useEffect(() => {
+    const handleFocus = () => {
+      setUnreadCount(0);
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, []);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -864,7 +891,7 @@ export default function PrivateChat({ initialTargetUser, onStartCall }: PrivateC
                     
                     <h4 className="text-xs font-bold text-zinc-300 uppercase mb-1">Sobre Mim</h4>
                     <p className="text-zinc-400 text-sm leading-relaxed">
-                      {selectedUser.about || "Membro do Nexus."}
+                      {selectedUser.about || "Membro do Papos."}
                     </p>
                  </div>
               </div>

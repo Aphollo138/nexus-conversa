@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Phone, Mic, MicOff, PhoneOff, Send, User, Search, X } from 'lucide-react';
 import { db, auth } from '../firebaseConfig';
+import { useDocumentTitleNotify } from '../hooks/useDocumentTitleNotify.ts';
+import { notificationService } from '../services/NotificationService.ts';
 import { 
   collection, 
   addDoc, 
@@ -47,6 +49,9 @@ export default function VoiceMatch({ userProfile }: VoiceMatchProps) {
   const [newMessage, setNewMessage] = useState('');
   const [amICaller, setAmICaller] = useState(false);
   const [partnerMuted, setPartnerMuted] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useDocumentTitleNotify({ unreadCount });
 
   // Refs
   const pc = useRef<RTCPeerConnection | null>(null);
@@ -193,12 +198,22 @@ export default function VoiceMatch({ userProfile }: VoiceMatchProps) {
   const initializeCall = async (currentCallId: string, isCaller: boolean) => {
     setAmICaller(isCaller);
     try {
+      // 1. Setup Local Stream & Check Permissions FIRST
+      let stream: MediaStream;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+      } catch (err) {
+        console.error("Microphone permission denied:", err);
+        alert("Permissão de microfone negada. Por favor, permita o acesso ao microfone para usar o chat de voz.");
+        cleanupCall();
+        return;
+      }
+      
+      localStream.current = stream;
+
       const pcInstance = new RTCPeerConnection(servers);
       pc.current = pcInstance;
 
-      // 1. Setup Local Stream
-      const stream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
-      localStream.current = stream;
       stream.getTracks().forEach((track) => {
         pcInstance.addTrack(track, stream);
       });
@@ -217,6 +232,9 @@ export default function VoiceMatch({ userProfile }: VoiceMatchProps) {
       const callDocRef = doc(db, 'calls', currentCallId);
       const callerCandidatesCollection = collection(callDocRef, 'callerCandidates');
       const calleeCandidatesCollection = collection(callDocRef, 'calleeCandidates');
+
+      // Buffer for ICE candidates received before remote description is set
+      const pendingCandidates: RTCIceCandidateInit[] = [];
 
       // 3. ICE Candidate Logic
       if (isCaller) {
@@ -240,14 +258,17 @@ export default function VoiceMatch({ userProfile }: VoiceMatchProps) {
         await updateDoc(callDocRef, { offer });
 
         // Listen for Answer
-        unsubscribeCallStatusRef.current = onSnapshot(callDocRef, (snapshot) => {
+        unsubscribeCallStatusRef.current = onSnapshot(callDocRef, async (snapshot) => {
             const data = snapshot.data();
             if (!pc.current || !data) return;
 
             // Handle Answer
             if (!pc.current.currentRemoteDescription && data.answer) {
                 const answerDescription = new RTCSessionDescription(data.answer);
-                pc.current.setRemoteDescription(answerDescription);
+                await pc.current.setRemoteDescription(answerDescription);
+                // Add any pending candidates
+                pendingCandidates.forEach(c => pc.current?.addIceCandidate(new RTCIceCandidate(c)));
+                pendingCandidates.length = 0;
             }
             
             // Handle Mute/Status
@@ -266,9 +287,11 @@ export default function VoiceMatch({ userProfile }: VoiceMatchProps) {
         unsubscribeCandidatesRef.current = onSnapshot(calleeCandidatesCollection, (snapshot) => {
             snapshot.docChanges().forEach((change) => {
                 if (change.type === 'added') {
-                    const candidate = new RTCIceCandidate(change.doc.data());
+                    const candidate = change.doc.data() as RTCIceCandidateInit;
                     if (pc.current?.remoteDescription) {
-                        pc.current.addIceCandidate(candidate);
+                        pc.current.addIceCandidate(new RTCIceCandidate(candidate));
+                    } else {
+                        pendingCandidates.push(candidate);
                     }
                 }
             });
@@ -297,15 +320,21 @@ export default function VoiceMatch({ userProfile }: VoiceMatchProps) {
                 type: answerDescription.type
             };
             await updateDoc(callDocRef, { answer });
+            
+            // Add any pending candidates now that remote description is set
+            pendingCandidates.forEach(c => pc.current?.addIceCandidate(new RTCIceCandidate(c)));
+            pendingCandidates.length = 0;
         }
 
         // Listen for Caller Candidates
         unsubscribeCandidatesRef.current = onSnapshot(callerCandidatesCollection, (snapshot) => {
             snapshot.docChanges().forEach((change) => {
                 if (change.type === 'added') {
-                    const candidate = new RTCIceCandidate(change.doc.data());
+                    const candidate = change.doc.data() as RTCIceCandidateInit;
                     if (pc.current?.remoteDescription) {
-                        pc.current.addIceCandidate(candidate);
+                        pc.current.addIceCandidate(new RTCIceCandidate(candidate));
+                    } else {
+                        pendingCandidates.push(candidate);
                     }
                 }
             });
@@ -332,36 +361,89 @@ export default function VoiceMatch({ userProfile }: VoiceMatchProps) {
       const messagesRef = collection(db, 'calls', currentCallId, 'messages');
       const q = query(messagesRef); 
       unsubscribeCallRef.current = onSnapshot(q, (snapshot) => {
-        const msgs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const msgs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
         msgs.sort((a: any, b: any) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0));
-        setMessages(msgs);
+        
+        setMessages(prevMsgs => {
+          if (msgs.length > prevMsgs.length) {
+            const lastMsg = msgs[msgs.length - 1];
+            if (lastMsg.senderId !== auth.currentUser?.uid) {
+              notificationService.playMessageSound();
+              if (!document.hasFocus()) {
+                setUnreadCount(prev => prev + 1);
+              }
+            }
+          }
+          return msgs;
+        });
       });
 
     } catch (error) {
       console.error("Error initializing call:", error);
+      cleanupCall();
     }
   };
 
-  const cleanupCall = () => {
+  const cleanupCall = async () => {
     if (localStream.current) {
       localStream.current.getTracks().forEach(track => track.stop());
+      localStream.current = null;
     }
     if (pc.current) {
       pc.current.close();
+      pc.current = null;
     }
     if (unsubscribeCallRef.current) unsubscribeCallRef.current();
     if (unsubscribeCallStatusRef.current) unsubscribeCallStatusRef.current();
     if (unsubscribeCandidatesRef.current) unsubscribeCandidatesRef.current();
     if (unsubscribeMatchRef.current) unsubscribeMatchRef.current();
     
+    // Clean up Firebase nodes
+    if (matchRequestId) {
+      try {
+        await deleteDoc(doc(db, 'match_queue', matchRequestId));
+      } catch (e) {
+        console.error("Error deleting match request:", e);
+      }
+    }
+    
+    if (callId) {
+      try {
+        await updateDoc(doc(db, 'calls', callId), { status: 'ended' });
+      } catch (e) {
+        console.error("Error ending call doc:", e);
+      }
+    }
+
     setMatchState('setup');
     setCallId(null);
+    setMatchRequestId(null);
     setPartnerProfile(null);
     setMessages([]);
+    setUnreadCount(0);
     setAmICaller(false);
     setPartnerMuted(false);
     setIsMuted(false);
+    setCallStatus('connecting');
   };
+
+  // Reset unread count when chat is opened or tab is focused
+  useEffect(() => {
+    const handleFocus = () => {
+      if (matchState === 'matched') {
+        setUnreadCount(0);
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [matchState]);
+
+  useEffect(() => {
+    if (matchState === 'matched' && document.hasFocus()) {
+      setUnreadCount(0);
+    }
+  }, [matchState]);
 
   const endCall = async () => {
     if (callId) {
