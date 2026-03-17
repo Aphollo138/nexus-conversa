@@ -16,6 +16,8 @@ import VoiceCall from '../components/VoiceCall';
 import VoiceMatch from '../components/VoiceMatch';
 import WelcomeModal from '../components/WelcomeModal';
 
+import { useNotifications } from '../contexts/NotificationContext';
+
 interface UserProfile {
   username?: string;
   avatarUrl?: string;
@@ -33,9 +35,12 @@ export default function Dashboard() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [activeView, setActiveView] = useState('home'); // 'home' | 'global' | 'private' | 'friends' | 'tickets' | 'reviews' | 'voice-match'
   const [privateChatTarget, setPrivateChatTarget] = useState<UserProfile | null>(null);
+  const [initialConversationId, setInitialConversationId] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Mobile sidebar state
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
   
+  const { unreadCount } = useNotifications();
+
   // Call State
   const [activeCall, setActiveCall] = useState<{
     id: string;
@@ -84,6 +89,26 @@ export default function Dashboard() {
 
     return () => unsubscribe();
   }, [userProfile?.uid, incomingCall]);
+
+  // Listen for openChat events from notifications
+  useEffect(() => {
+    const handleOpenChat = (event: Event) => {
+      const customEvent = event as CustomEvent<{ chatId: string }>;
+      const { chatId } = customEvent.detail;
+      
+      if (chatId.startsWith('call_')) {
+        setActiveTab('voice-match');
+        setActiveView('voice-match');
+      } else {
+        setInitialConversationId(chatId);
+        setActiveTab('private');
+        setActiveView('private');
+      }
+    };
+
+    window.addEventListener('openChat', handleOpenChat);
+    return () => window.removeEventListener('openChat', handleOpenChat);
+  }, []);
 
   // Online Status Tracking
   useEffect(() => {
@@ -312,14 +337,14 @@ export default function Dashboard() {
         
         {/* Logo / Header Area */}
         <div className="px-6 mb-10 flex items-center gap-3 pl-12 md:pl-6">
-          <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center shadow-[0_0_15px_rgba(255,255,255,0.3)] overflow-hidden">
+          <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-[0_0_15px_rgba(255,255,255,0.3)] overflow-hidden p-1">
              <img 
-               src="https://i.postimg.cc/jDfHpdjL/image.png" 
+               src="https://i.postimg.cc/vZq064FL/Chat-GPT-Image-14-de-mar-de-2026-10-15-19-removebg-preview.png" 
                alt="Papos Logo" 
-               className="w-full h-full object-cover"
+               className="w-full h-full object-contain"
              />
           </div>
-          <span className="font-display font-bold text-xl tracking-tight">Papos</span>
+          <span className="font-display font-bold text-2xl tracking-tight">Papos</span>
         </div>
 
         {/* Navigation Icons */}
@@ -345,6 +370,11 @@ export default function Dashboard() {
           >
             <MessageSquare className={`w-6 h-6 transition-colors duration-300 ${activeTab === 'private' ? 'text-purple-400' : 'text-zinc-500 group-hover:text-purple-400'}`} />
             <span className={`text-base font-medium transition-colors duration-300 ${activeTab === 'private' ? 'text-white' : 'text-zinc-400 group-hover:text-white'}`}>Chat Privado</span>
+            {unreadCount > 0 && activeTab !== 'private' && (
+              <div className="absolute right-4 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </div>
+            )}
             {activeTab === 'private' && (
               <motion.div layoutId="active-pill" className="absolute right-4 w-1.5 h-1.5 rounded-full bg-purple-400 shadow-[0_0_10px_rgba(168,85,247,0.8)]" />
             )}
@@ -371,6 +401,11 @@ export default function Dashboard() {
           >
             <Phone className={`w-6 h-6 transition-colors duration-300 ${activeTab === 'voice-match' ? 'text-pink-500' : 'text-zinc-500 group-hover:text-pink-500'}`} />
             <span className={`text-base font-medium transition-colors duration-300 ${activeTab === 'voice-match' ? 'text-white' : 'text-zinc-400 group-hover:text-white'}`}>Call</span>
+            {unreadCount > 0 && activeTab !== 'voice-match' && (
+              <div className="absolute right-4 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </div>
+            )}
             {activeTab === 'voice-match' && (
               <motion.div layoutId="active-pill" className="absolute right-4 w-1.5 h-1.5 rounded-full bg-pink-500 shadow-[0_0_10px_rgba(236,72,153,0.8)]" />
             )}
@@ -522,7 +557,7 @@ export default function Dashboard() {
         {activeView === 'global' ? (
           <GlobalChat onStartPrivateChat={handleStartPrivateChat} />
         ) : activeView === 'private' ? (
-          <PrivateChat initialTargetUser={privateChatTarget} onStartCall={handleStartCall} />
+          <PrivateChat initialTargetUser={privateChatTarget} initialConversationId={initialConversationId} onStartCall={handleStartCall} />
         ) : activeView === 'friends' ? (
           <Friends onStartPrivateChat={handleStartPrivateChat} />
         ) : activeView === 'tickets' ? (

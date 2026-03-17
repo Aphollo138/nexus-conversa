@@ -4,7 +4,7 @@ import EmojiPicker, { Theme } from 'emoji-picker-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db, auth } from '../firebaseConfig';
 import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, limit, getDocs, doc, getDoc, where, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
-import { useDiscordTabNotification } from '../hooks/useDiscordTabNotification';
+import { useNotifications } from '../contexts/NotificationContext';
 import { notificationService } from '../services/NotificationService';
 
 interface User {
@@ -35,20 +35,31 @@ interface Conversation {
 
 interface PrivateChatProps {
   initialTargetUser?: User | null;
+  initialConversationId?: string | null;
   onStartCall?: (targetUser: User) => void;
 }
 
-export default function PrivateChat({ initialTargetUser, onStartCall }: PrivateChatProps) {
+export default function PrivateChat({ initialTargetUser, initialConversationId, onStartCall }: PrivateChatProps) {
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+  const [activeConversationId, setActiveConversationId] = useState<string | null>(initialConversationId || null);
   const [activeUser, setActiveUser] = useState<User | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  useDiscordTabNotification(unreadCount);
+  const { setActiveChatId } = useNotifications();
+
+  useEffect(() => {
+    if (initialConversationId) {
+      setActiveConversationId(initialConversationId);
+    }
+  }, [initialConversationId]);
+
+  useEffect(() => {
+    setActiveChatId(activeConversationId);
+    return () => setActiveChatId(null);
+  }, [activeConversationId, setActiveChatId]);
   
   // Popover State
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -332,6 +343,15 @@ export default function PrivateChat({ initialTargetUser, onStartCall }: PrivateC
     return () => unsubscribe();
   }, []);
 
+  useEffect(() => {
+    if (activeConversationId && conversations.length > 0) {
+      const conv = conversations.find(c => c.id === activeConversationId);
+      if (conv && conv.otherUser) {
+        setActiveUser(conv.otherUser);
+      }
+    }
+  }, [activeConversationId, conversations]);
+
   // 3. Listen for Messages in Active Conversation
   useEffect(() => {
     if (!activeConversationId) return;
@@ -349,31 +369,12 @@ export default function PrivateChat({ initialTargetUser, onStartCall }: PrivateC
       });
       
       setMessages(prevMsgs => {
-        if (msgs.length > prevMsgs.length) {
-          const lastMsg = msgs[msgs.length - 1];
-          if (lastMsg.senderId !== auth.currentUser?.uid) {
-            notificationService.playMessageSound();
-            if (!document.hasFocus()) {
-              setUnreadCount(prev => prev + 1);
-            }
-          }
-        }
         return msgs;
       });
     });
 
     return () => unsubscribe();
   }, [activeConversationId]);
-
-  // Reset unread count when tab is focused
-  useEffect(() => {
-    const handleFocus = () => {
-      setUnreadCount(0);
-    };
-
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
-  }, []);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -395,6 +396,7 @@ export default function PrivateChat({ initialTargetUser, onStartCall }: PrivateC
       // Update conversation last message AND remove from hiddenFor for both participants
       await updateDoc(doc(db, 'conversations', activeConversationId), {
         lastMessage: inputValue,
+        lastMessageSenderId: auth.currentUser.uid,
         lastMessageAt: serverTimestamp(),
         hiddenFor: [] // Unhide for everyone when a new message is sent
       });

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-const ORIGINAL_FAVICON_URL = 'https://i.postimg.cc/vZq064FL/Chat_GPT_Image_14_de_mar_de_2026_10_15_19_removebg_preview.png';
+const ORIGINAL_FAVICON_URL = 'https://i.postimg.cc/vZq064FL/Chat-GPT-Image-14-de-mar-de-2026-10-15-19-removebg-preview.png';
 
 export function useDiscordTabNotification(unreadCount: number) {
   const originalTitle = useRef(document.title);

@@ -26,8 +26,8 @@ class NotificationService {
   }
 
   public playMessageSound() {
-    if (!this.isEnabled || document.hasFocus()) {
-      return; // Don't play sound if the user is already focused on the tab
+    if (!this.isEnabled) {
+      return; 
     }
 
     if (!this.audioContext) {

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Phone, Mic, MicOff, PhoneOff, Send, User, Search, X } from 'lucide-react';
 import { db, auth } from '../firebaseConfig';
-import { useDiscordTabNotification } from '../hooks/useDiscordTabNotification';
+import { useNotifications } from '../contexts/NotificationContext';
 import { notificationService } from '../services/NotificationService';
 import { 
   collection, 
@@ -39,8 +39,20 @@ export default function VoiceMatch({ userProfile }: VoiceMatchProps) {
   const [matchState, setMatchState] = useState<'setup' | 'searching' | 'matched'>('setup');
   const [myGender, setMyGender] = useState('male');
   const [preferredGender, setPreferredGender] = useState('any');
-  const [matchRequestId, setMatchRequestId] = useState<string | null>(null);
-  const [callId, setCallId] = useState<string | null>(null);
+  const [matchRequestId, setMatchRequestIdState] = useState<string | null>(null);
+  const [callId, setCallIdState] = useState<string | null>(null);
+  const matchRequestIdRef = useRef<string | null>(null);
+  const callIdRef = useRef<string | null>(null);
+
+  const setMatchRequestId = (id: string | null) => {
+    setMatchRequestIdState(id);
+    matchRequestIdRef.current = id;
+  };
+
+  const setCallId = (id: string | null) => {
+    setCallIdState(id);
+    callIdRef.current = id;
+  };
   const [partnerProfile, setPartnerProfile] = useState<any>(null);
   
   // Call State
@@ -50,9 +62,17 @@ export default function VoiceMatch({ userProfile }: VoiceMatchProps) {
   const [newMessage, setNewMessage] = useState('');
   const [amICaller, setAmICaller] = useState(false);
   const [partnerMuted, setPartnerMuted] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(0);
 
-  useDiscordTabNotification(unreadCount);
+  const { setActiveChatId } = useNotifications();
+
+  useEffect(() => {
+    if (matchState === 'matched' && callId) {
+      setActiveChatId(callId);
+    } else {
+      setActiveChatId(null);
+    }
+    return () => setActiveChatId(null);
+  }, [matchState, callId, setActiveChatId]);
 
   // Refs
   const pc = useRef<RTCPeerConnection | null>(null);
@@ -371,15 +391,6 @@ export default function VoiceMatch({ userProfile }: VoiceMatchProps) {
         msgs.sort((a: any, b: any) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0));
         
         setMessages(prevMsgs => {
-          if (msgs.length > prevMsgs.length) {
-            const lastMsg = msgs[msgs.length - 1];
-            if (lastMsg.senderId !== auth.currentUser?.uid) {
-              notificationService.playMessageSound();
-              if (!document.hasFocus()) {
-                setUnreadCount(prev => prev + 1);
-              }
-            }
-          }
           return msgs;
         });
       });
@@ -405,18 +416,18 @@ export default function VoiceMatch({ userProfile }: VoiceMatchProps) {
     if (unsubscribeMatchRef.current) unsubscribeMatchRef.current();
     
     // Clean up Firebase nodes
-    if (matchRequestId) {
+    if (matchRequestIdRef.current) {
       try {
-        await deleteDoc(doc(db, 'waiting_users', matchRequestId));
-        await deleteDoc(doc(db, 'user_matches', matchRequestId));
+        await deleteDoc(doc(db, 'waiting_users', matchRequestIdRef.current));
+        await deleteDoc(doc(db, 'user_matches', matchRequestIdRef.current));
       } catch (e) {
         console.error("Error deleting match request:", e);
       }
     }
     
-    if (callId) {
+    if (callIdRef.current) {
       try {
-        await updateDoc(doc(db, 'calls', callId), { status: 'ended' });
+        await updateDoc(doc(db, 'calls', callIdRef.current), { status: 'ended' });
       } catch (e) {
         console.error("Error ending call doc:", e);
       }
@@ -427,30 +438,17 @@ export default function VoiceMatch({ userProfile }: VoiceMatchProps) {
     setMatchRequestId(null);
     setPartnerProfile(null);
     setMessages([]);
-    setUnreadCount(0);
     setAmICaller(false);
     setPartnerMuted(false);
     setIsMuted(false);
     setCallStatus('connecting');
   };
 
-  // Reset unread count when chat is opened or tab is focused
   useEffect(() => {
-    const handleFocus = () => {
-      if (matchState === 'matched') {
-        setUnreadCount(0);
-      }
+    return () => {
+      cleanupCall();
     };
-
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
-  }, [matchState]);
-
-  useEffect(() => {
-    if (matchState === 'matched' && document.hasFocus()) {
-      setUnreadCount(0);
-    }
-  }, [matchState]);
+  }, []);
 
   const endCall = async () => {
     if (callId) {
@@ -490,6 +488,13 @@ export default function VoiceMatch({ userProfile }: VoiceMatchProps) {
         senderName: userProfile.username,
         createdAt: serverTimestamp()
       });
+      
+      await updateDoc(doc(db, 'calls', callId), {
+        lastMessage: newMessage,
+        lastMessageSenderId: userProfile.uid,
+        lastMessageAt: serverTimestamp()
+      });
+      
       setNewMessage('');
     } catch (error) {
       console.error("Error sending message:", error);
