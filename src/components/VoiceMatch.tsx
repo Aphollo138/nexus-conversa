@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Phone, Mic, MicOff, PhoneOff, Send, User, Search, X } from 'lucide-react';
 import { db, auth } from '../firebaseConfig';
-import { useDocumentTitleNotify } from '../hooks/useDocumentTitleNotify.ts';
-import { notificationService } from '../services/NotificationService.ts';
+import { useDiscordTabNotification } from '../hooks/useDiscordTabNotification';
+import { notificationService } from '../services/NotificationService';
 import { 
   collection, 
   addDoc, 
@@ -17,7 +17,8 @@ import {
   setDoc, 
   getDoc,
   deleteDoc,
-  limit
+  limit,
+  runTransaction
 } from 'firebase/firestore';
 
 // WebRTC Configuration
@@ -51,7 +52,7 @@ export default function VoiceMatch({ userProfile }: VoiceMatchProps) {
   const [partnerMuted, setPartnerMuted] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
 
-  useDocumentTitleNotify({ unreadCount });
+  useDiscordTabNotification(unreadCount);
 
   // Refs
   const pc = useRef<RTCPeerConnection | null>(null);
@@ -71,106 +72,111 @@ export default function VoiceMatch({ userProfile }: VoiceMatchProps) {
 
     try {
       // 1. Search for a waiting user in the queue
-      const queueRef = collection(db, 'match_queue');
-      
-      // Query for users waiting with matching preferences
-      // Note: Firestore queries are limited. We need to find someone who:
-      // - status == 'waiting'
-      // - preferredGender == 'any' OR preferredGender == myGender
-      // - myGender == 'any' OR myGender == theirGender
-      // - uid != myUid
-      
-      // Simplified query strategy: Get waiting users and filter client-side for complex matching logic
-      // In production, this should be a Cloud Function or more specific queries.
-      const q = query(
-        queueRef, 
-        where('status', '==', 'waiting'),
-        limit(10) // Get a batch to check
-      );
-
+      const waitingRef = collection(db, 'waiting_users');
+      const q = query(waitingRef, limit(10));
       const snapshot = await getDocs(q);
-      let foundMatch = null;
+      
+      let foundMatch: any = null;
 
       for (const docSnap of snapshot.docs) {
         const data = docSnap.data();
-        if (data.uid === userProfile.uid) continue; // Skip self
+        if (docSnap.id === userProfile.uid) continue; // Skip self
 
         // Check compatibility
         const isTheyCompatible = data.preferredGender === 'any' || data.preferredGender === myGender;
         const amICompatible = preferredGender === 'any' || preferredGender === data.myGender;
 
         if (isTheyCompatible && amICompatible) {
-          foundMatch = { id: docSnap.id, ...data };
-          break;
+          // Try to lock this user using a transaction
+          try {
+            await runTransaction(db, async (transaction) => {
+              const targetWaitingDoc = await transaction.get(docSnap.ref);
+              if (!targetWaitingDoc.exists()) {
+                throw new Error("User no longer waiting");
+              }
+
+              // Create a new call doc
+              const newCallId = `call_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+              const callRef = doc(db, 'calls', newCallId);
+              
+              transaction.set(callRef, {
+                participants: [userProfile.uid, docSnap.id],
+                createdAt: serverTimestamp(),
+                status: 'active'
+              });
+
+              // Write the call ID to the target user's profile (or a specific match doc)
+              const matchRef = doc(db, 'user_matches', docSnap.id);
+              transaction.set(matchRef, {
+                callId: newCallId,
+                matchedWith: userProfile.uid,
+                timestamp: serverTimestamp()
+              });
+
+              // Delete the waiting node so no one else can take it
+              transaction.delete(docSnap.ref);
+
+              foundMatch = {
+                uid: docSnap.id,
+                username: data.username,
+                avatarUrl: data.avatarUrl,
+                callId: newCallId
+              };
+            });
+            
+            if (foundMatch) break; // Transaction succeeded
+          } catch (e) {
+            console.log("Transaction failed, trying next user...", e);
+            continue;
+          }
         }
       }
 
       if (foundMatch) {
-        // --- MATCH FOUND! ---
-        // 1. Generate Call ID
-        const newCallId = `call_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-        setCallId(newCallId);
+        // --- MATCH FOUND! (I am User B) ---
+        setCallId(foundMatch.callId);
         setPartnerProfile({
           uid: foundMatch.uid,
           username: foundMatch.username,
           avatarUrl: foundMatch.avatarUrl
         });
-
-        // 2. Update their request to 'matched' with callId
-        await updateDoc(doc(db, 'match_queue', foundMatch.id), {
-          status: 'matched',
-          callId: newCallId,
-          matchedWith: userProfile.uid
-        });
-
-        // 3. Create the call document immediately
-        await setDoc(doc(db, 'calls', newCallId), {
-          participants: [userProfile.uid, foundMatch.uid],
-          createdAt: serverTimestamp(),
-          status: 'active'
-        });
-
-        // 4. Start Call as Initiator (Caller)
+        
         setMatchState('matched');
-        initializeCall(newCallId, true);
+        initializeCall(foundMatch.callId, true); // I am the Caller
 
       } else {
-        // --- NO MATCH FOUND, WAIT IN QUEUE ---
-        const docRef = await addDoc(collection(db, 'match_queue'), {
+        // --- NO MATCH FOUND, WAIT IN QUEUE (I am User A) ---
+        const myWaitingRef = doc(db, 'waiting_users', userProfile.uid);
+        await setDoc(myWaitingRef, {
           uid: userProfile.uid,
           username: userProfile.username || 'User',
           avatarUrl: userProfile.avatarUrl || '',
           myGender,
           preferredGender,
-          status: 'waiting',
-          createdAt: serverTimestamp()
+          timestamp: serverTimestamp()
         });
         
-        setMatchRequestId(docRef.id);
+        setMatchRequestId(userProfile.uid);
 
-        // Listen for updates to my request
-        unsubscribeMatchRef.current = onSnapshot(doc(db, 'match_queue', docRef.id), async (snapshot) => {
+        // Listen for changes in my user_matches doc
+        const myMatchRef = doc(db, 'user_matches', userProfile.uid);
+        unsubscribeMatchRef.current = onSnapshot(myMatchRef, async (snapshot) => {
           const data = snapshot.data();
-          if (data && data.status === 'matched' && data.callId) {
+          if (data && data.callId) {
             // Someone matched with me!
             setCallId(data.callId);
             
-            // Fetch partner info (we need to know who matched us)
-            // In a real app, the matcher should write their info to my doc, or I fetch the call doc
-            // Let's fetch the call doc to find the other participant
-            const callDoc = await getDoc(doc(db, 'calls', data.callId));
-            if (callDoc.exists()) {
-               // This part is tricky without partner info in the match doc. 
-               // Ideally the matcher writes their info to the match doc.
-               // For now, let's assume we can get it from the call participants or similar.
-               // Let's update the matcher logic to write 'matchedWith' uid.
-               if (data.matchedWith) {
-                 const userDoc = await getDoc(doc(db, 'users', data.matchedWith));
-                 if (userDoc.exists()) {
-                   setPartnerProfile(userDoc.data());
-                 }
-               }
+            // Fetch partner info
+            if (data.matchedWith) {
+              const userDoc = await getDoc(doc(db, 'users', data.matchedWith));
+              if (userDoc.exists()) {
+                setPartnerProfile(userDoc.data());
+              }
             }
+
+            // Clean up my waiting status and match doc
+            await deleteDoc(myWaitingRef);
+            await deleteDoc(myMatchRef);
 
             setMatchState('matched');
             initializeCall(data.callId, false); // I am the Callee
@@ -187,7 +193,7 @@ export default function VoiceMatch({ userProfile }: VoiceMatchProps) {
   const cancelSearch = async () => {
     if (matchRequestId) {
       if (unsubscribeMatchRef.current) unsubscribeMatchRef.current();
-      await deleteDoc(doc(db, 'match_queue', matchRequestId));
+      await deleteDoc(doc(db, 'waiting_users', matchRequestId));
       setMatchRequestId(null);
     }
     setMatchState('setup');
@@ -401,7 +407,8 @@ export default function VoiceMatch({ userProfile }: VoiceMatchProps) {
     // Clean up Firebase nodes
     if (matchRequestId) {
       try {
-        await deleteDoc(doc(db, 'match_queue', matchRequestId));
+        await deleteDoc(doc(db, 'waiting_users', matchRequestId));
+        await deleteDoc(doc(db, 'user_matches', matchRequestId));
       } catch (e) {
         console.error("Error deleting match request:", e);
       }

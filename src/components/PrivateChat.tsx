@@ -4,7 +4,7 @@ import EmojiPicker, { Theme } from 'emoji-picker-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db, auth } from '../firebaseConfig';
 import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, limit, getDocs, doc, getDoc, where, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
-import { useDocumentTitleNotify } from '../hooks/useDocumentTitleNotify';
+import { useDiscordTabNotification } from '../hooks/useDiscordTabNotification';
 import { notificationService } from '../services/NotificationService';
 
 interface User {
@@ -48,7 +48,7 @@ export default function PrivateChat({ initialTargetUser, onStartCall }: PrivateC
   const [unreadCount, setUnreadCount] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  useDocumentTitleNotify({ unreadCount });
+  useDiscordTabNotification(unreadCount);
   
   // Popover State
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
