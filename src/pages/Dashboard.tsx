@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import Spline from '@splinetool/react-spline';
+import OptimizedSpline from '../components/OptimizedSpline';
 import { Globe, MessageSquare, Users, LogOut, ChevronRight, Settings, Ticket, Star, Menu, X, Phone, PhoneOff } from 'lucide-react';
 import { auth, db } from '../firebaseConfig';
 import { doc, getDoc, collection, addDoc, onSnapshot, query, where, updateDoc, serverTimestamp } from 'firebase/firestore';
@@ -570,7 +570,7 @@ export default function Dashboard() {
           /* Empty State / Home View */
           <div className="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none">
             <div className="w-full h-full absolute inset-0 opacity-60">
-               <Spline scene="https://prod.spline.design/leRYPQ9l8BH5V2or/scene.splinecode" className="w-full h-full" />
+               <OptimizedSpline scene="https://prod.spline.design/leRYPQ9l8BH5V2or/scene.splinecode" className="w-full h-full" />
             </div>
             
             <div className="z-20 mt-[40vh] text-center px-4">

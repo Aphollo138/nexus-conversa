@@ -1,5 +1,5 @@
-import { useState, FormEvent } from 'react';
-import Spline from '@splinetool/react-spline';
+import { useState, FormEvent, useEffect } from 'react';
+import OptimizedSpline from '../components/OptimizedSpline';
 import { motion } from 'framer-motion';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { collection, query, where, getDocs, setDoc, doc } from 'firebase/firestore';
@@ -16,6 +16,14 @@ export default function SignUp() {
   const [error, setError] = useState('');
   const [showOnboarding, setShowOnboarding] = useState(false);
   const navigate = useNavigate();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   const checkUsernameUnique = async (usernameToCheck: string) => {
     const usersRef = collection(db, 'users');
@@ -228,11 +236,13 @@ export default function SignUp() {
       </div>
 
       {/* Right Panel - 3D Scene */}
-      <div className="hidden md:block flex-1 relative bg-black h-full">
-        <div className="absolute inset-0 z-0">
-           <Spline scene="https://prod.spline.design/leRYPQ9l8BH5V2or/scene.splinecode" className="w-full h-full" />
+      {!isMobile && (
+        <div className="hidden md:block flex-1 relative bg-black h-full">
+          <div className="absolute inset-0 z-0">
+             <OptimizedSpline scene="https://prod.spline.design/leRYPQ9l8BH5V2or/scene.splinecode" className="w-full h-full" />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

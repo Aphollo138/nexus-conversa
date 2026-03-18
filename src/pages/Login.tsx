@@ -1,5 +1,5 @@
-import { useState, FormEvent } from 'react';
-import Spline from '@splinetool/react-spline';
+import { useState, FormEvent, useEffect } from 'react';
+import OptimizedSpline from '../components/OptimizedSpline';
 import { motion } from 'framer-motion';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
@@ -11,6 +11,14 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
@@ -28,13 +36,15 @@ export default function Login() {
   return (
     <div className="flex h-[100dvh] w-full bg-black overflow-hidden text-white relative">
       {/* Mobile Background 3D - Cube */}
-      <div className="absolute inset-0 z-0 md:hidden opacity-60 pointer-events-none">
-        <Spline 
-          scene="https://prod.spline.design/hd0VqQkFQpvwQJXy/scene.splinecode" 
-          className="w-full h-full scale-125"
-        />
-        <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
-      </div>
+      {isMobile && (
+        <div className="absolute inset-0 z-0 md:hidden opacity-60 pointer-events-none">
+          <OptimizedSpline 
+            scene="https://prod.spline.design/hd0VqQkFQpvwQJXy/scene.splinecode" 
+            className="w-full h-full scale-125"
+          />
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
+        </div>
+      )}
 
       {/* Left Panel - Form */}
       <div className="w-full md:w-[500px] h-full flex flex-col justify-center px-8 sm:px-12 bg-transparent md:bg-black border-r border-white/10 z-20 relative">
@@ -136,11 +146,13 @@ export default function Login() {
       </div>
 
       {/* Right Panel - 3D Scene */}
-      <div className="hidden md:block flex-1 relative bg-black h-full">
-        <div className="absolute inset-0 z-0">
-           <Spline scene="https://prod.spline.design/leRYPQ9l8BH5V2or/scene.splinecode" className="w-full h-full" />
+      {!isMobile && (
+        <div className="hidden md:block flex-1 relative bg-black h-full">
+          <div className="absolute inset-0 z-0">
+             <OptimizedSpline scene="https://prod.spline.design/leRYPQ9l8BH5V2or/scene.splinecode" className="w-full h-full" />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

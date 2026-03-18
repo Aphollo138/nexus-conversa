@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import Spline from '@splinetool/react-spline';
+import OptimizedSpline from '../components/OptimizedSpline';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { Bot, ArrowRight, Menu, X, User, DoorOpen, Zap, Shield, Globe, Mic, MessageSquare, Video as VideoIcon, Phone } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -193,15 +193,17 @@ function Features() {
   return (
     <section id="features" className="relative w-full min-h-screen bg-black flex items-center py-20 overflow-hidden">
       {/* 3D Boat Background - Desktop Only */}
-      <div className="absolute right-0 bottom-0 w-full lg:w-2/3 h-full pointer-events-none z-0">
-        <Spline 
-          scene="https://prod.spline.design/phdEYajKh5P-P9Kx/scene.splinecode"
-          className="w-full h-full opacity-80 hidden lg:block"
-        />
-        {/* Gradient Masks for smooth blending */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-      </div>
+      {!isMobile && (
+        <div className="absolute right-0 bottom-0 w-full lg:w-2/3 h-full pointer-events-none z-0">
+          <OptimizedSpline 
+            scene="https://prod.spline.design/phdEYajKh5P-P9Kx/scene.splinecode"
+            className="w-full h-full opacity-80"
+          />
+          {/* Gradient Masks for smooth blending */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+        </div>
+      )}
 
       {/* Mobile Background - Clean Dark/White */}
       {isMobile && (
@@ -334,21 +336,21 @@ export default function Home() {
     <div className="min-h-screen overflow-x-hidden bg-zinc-950 text-white flex flex-col relative">
       {/* Hero 3D Background Layer */}
       <div className="fixed inset-0 z-0 grayscale opacity-40 pointer-events-none">
-        {/* Mobile: Cube Scene */}
-        <div className="lg:hidden w-full h-full">
-           <Spline 
-             scene="https://prod.spline.design/hd0VqQkFQpvwQJXy/scene.splinecode"
-             className="w-full h-full scale-125"
-           />
-        </div>
-        
-        {/* Desktop: Robot Scene (Original) */}
-        <div className="hidden lg:block w-full h-full">
-           <Spline 
-             scene="https://prod.spline.design/dnN6ZvuJBbyN2Va1/scene.splinecode"
-             className="w-full h-full translate-x-1/4"
-           />
-        </div>
+        {isMobile ? (
+          <div className="w-full h-full">
+             <OptimizedSpline 
+               scene="https://prod.spline.design/hd0VqQkFQpvwQJXy/scene.splinecode"
+               className="w-full h-full scale-125"
+             />
+          </div>
+        ) : (
+          <div className="w-full h-full">
+             <OptimizedSpline 
+               scene="https://prod.spline.design/dnN6ZvuJBbyN2Va1/scene.splinecode"
+               className="w-full h-full translate-x-1/4"
+             />
+          </div>
+        )}
 
         {/* Overlay gradient to ensure text readability */}
         <div className="absolute inset-0 bg-gradient-to-b from-zinc-950 via-transparent to-zinc-950 pointer-events-none" />

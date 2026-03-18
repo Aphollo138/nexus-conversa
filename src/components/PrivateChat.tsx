@@ -693,21 +693,40 @@ export default function PrivateChat({ initialTargetUser, initialConversationId, 
                                <p className={`text-zinc-300 text-sm leading-relaxed whitespace-pre-wrap break-words ${!showHeader ? 'ml-0' : ''}`}>
                                  {msg.content}
                                </p>
-                               {/* Mobile Context Menu Button */}
-                               <button 
-                                 className="md:hidden absolute -top-6 right-0 p-1 text-zinc-500 hover:text-white bg-[#2B2D31] rounded shadow-sm opacity-0 group-hover/msg:opacity-100 transition-opacity"
-                                 onClick={(e) => {
-                                   e.stopPropagation();
-                                   setContextMenu({
-                                     x: e.clientX,
-                                     y: e.clientY,
-                                     message: msg,
-                                     user: isMe ? (currentUserProfile || { uid: auth.currentUser?.uid || '', username: 'Me' } as User) : activeUser!
-                                   });
-                                 }}
-                               >
-                                 <MoreVertical className="w-3 h-3" />
-                               </button>
+                               
+                               {/* Message Actions (Hover/Mobile) */}
+                               <div className="absolute -top-4 right-0 flex items-center bg-[#2B2D31] border border-[#1e1f22] rounded shadow-sm overflow-hidden opacity-0 group-hover/msg:opacity-100 transition-opacity">
+                                 {isMe && (
+                                   <button 
+                                     className="p-1.5 text-zinc-400 hover:text-red-400 hover:bg-[#35373C] transition-colors"
+                                     onClick={async (e) => {
+                                       e.stopPropagation();
+                                       try {
+                                         await deleteDoc(doc(db, 'conversations', activeConversationId, 'messages', msg.id));
+                                       } catch (err) {
+                                         console.error("Error deleting message:", err);
+                                       }
+                                     }}
+                                     title="Excluir mensagem"
+                                   >
+                                     <Trash2 className="w-3.5 h-3.5" />
+                                   </button>
+                                 )}
+                                 <button 
+                                   className="md:hidden p-1.5 text-zinc-400 hover:text-white hover:bg-[#35373C] transition-colors"
+                                   onClick={(e) => {
+                                     e.stopPropagation();
+                                     setContextMenu({
+                                       x: e.clientX,
+                                       y: e.clientY,
+                                       message: msg,
+                                       user: isMe ? (currentUserProfile || { uid: auth.currentUser?.uid || '', username: 'Me' } as User) : activeUser!
+                                     });
+                                   }}
+                                 >
+                                   <MoreVertical className="w-3.5 h-3.5" />
+                                 </button>
+                               </div>
                              </div>
                           </div>
                         </div>
