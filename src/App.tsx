@@ -3,7 +3,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { getAuth, onAuthStateChanged } from 'firebase/auth'; // Adicionado para escutar o login
+
 import Home from './pages/Home';
 import SignUp from './pages/SignUp';
 import Dashboard from './pages/Dashboard';
@@ -14,8 +17,28 @@ import Sobre from './pages/Sobre';
 import Dicas from './pages/Dicas';
 import InstallPrompt from './components/InstallPrompt';
 import { NotificationProvider } from './contexts/NotificationContext';
+import { useNativePush } from './hooks/useNativePush'; // Seu hook nativo
 
 export default function App() {
+  const { initPushNotifications } = useNativePush();
+
+  useEffect(() => {
+    // Pegamos a instância do Firebase Auth
+    const auth = getAuth();
+    
+    // O onAuthStateChanged fica "vigiando" o status do usuário em tempo real
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        console.log("Usuário logado detectado! Iniciando Push Notifications nativas...");
+        // Passa o ID do usuário para o hook salvar o token do aparelho no banco
+        initPushNotifications(user.uid);
+      }
+    });
+
+    // Limpeza de segurança para não duplicar o listener
+    return () => unsubscribe();
+  }, [initPushNotifications]);
+
   return (
     <NotificationProvider>
       <Router>
@@ -34,4 +57,3 @@ export default function App() {
     </NotificationProvider>
   );
 }
-
