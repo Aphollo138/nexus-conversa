@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">papos</string>
+    <string name="title_activity_main">papos</string>
+    <string name="package_name">br.net.papo.app</string>
+    <string name="custom_url_scheme">br.net.papo.app</string>
+</resources>

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "11691552610",
+    "project_id": "site-3d-a96c7",
+    "storage_bucket": "site-3d-a96c7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:11691552610:android:0ffa221fda00ca8107863b",
+        "android_client_info": {
+          "package_name": "br.net.papo.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBiVj2-im1lE4tUZE39AMrFKiUMm8n3zNQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
